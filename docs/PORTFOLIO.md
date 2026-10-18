@@ -1,6 +1,10 @@
-# TraceLens v2 portfolio material
+# Explaining TraceLens
 
-The current post text is in [LINKEDIN_POST.txt](LINKEDIN_POST.txt). The technical account is [CALIBRATION_AUDIT.md](CALIBRATION_AUDIT.md). Historical v1 results are retained separately and must not be presented as the new detector's audit performance.
+TraceLens helps a viewer investigate three things: what a log detector flags, what it misses, and whether the false-alarm cost stays acceptable on later logs. It connects trained neural models to an interactive view of the messages and a reproducible evaluation.
+
+A short introduction: “After studying deep learning, I became interested in how neural networks distinguish abnormal system messages from repetitive log traffic. I built TraceLens to compare sequence prediction with learned message patterns, inspect their mistakes, and test whether an alert threshold holds up over time. The CNN found more anomalies, but the false-positive target did not transfer to later logs—so the project shows both the improvement and the remaining reliability problem.”
+
+The [evaluation report](CALIBRATION_AUDIT.md) supports the measured claims. Historical v1 results are separate and should not be mixed with the current evaluation ranges.
 
 ## Two-minute demonstration
 
