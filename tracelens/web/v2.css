@@ -1440,3 +1440,6 @@ tr.emphasis td {
 }
 
 @media (max-width: 700px) { .hero h1 { font-size: clamp(40px, 12vw, 58px); letter-spacing: -2px; } .hero h1 em { letter-spacing: -2px; } .masthead nav a { white-space: nowrap; padding: 0 5px; font-size: 11px; } }
+
+.instrument > .usage-note { margin: 16px 28px; }
+@media (max-width: 700px) { .instrument > .usage-note { margin: 14px 16px; } }

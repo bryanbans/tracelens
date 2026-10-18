@@ -22,7 +22,7 @@
       <a href="#overview" class="wordmark"
         ><span class="brand-icon" aria-hidden="true">[·]</span>TraceLens<span
           class="edition"
-          >/ 02</span
+          >LOG ANALYSIS</span
         ></a
       >
       <nav aria-label="Main navigation">
@@ -31,7 +31,7 @@
         ><a href="#replay" data-page="replay">Try a sample</a
         ><a href="#protocol" data-page="protocol">Method</a>
       </nav>
-      <span class="local"><i></i> LOCAL INFERENCE</span>
+      <span class="local"><i></i> RUNS LOCALLY</span>
     </header>
     <main id="content">
       <div id="loading" class="loading">
@@ -46,7 +46,7 @@
             </div>
             <h1 id="title">Find anomalies.<br />Inspect <em>the evidence.</em></h1>
             <p class="intro">
-              Explore unusual messages in Blue Gene/L system logs. Compare
+              Explore unusual messages in Blue Gene/L (BGL) supercomputer logs. Compare
               what each model catches, what it misses, and how many false
               alarms it creates.
             </p>
@@ -73,7 +73,7 @@
             <div><dt>Precision</dt><dd>Of the flagged windows, how many were labeled anomalous?</dd></div>
             <div><dt>Normal false-positive rate</dt><dd>Of the labeled normal windows, how many did the model flag?</dd></div>
           </dl>
-          <p>A window is 20 consecutive messages in file order. It is labeled anomalous if any message has a dataset alert label. These are historical evaluation results, not a live system-health monitor.</p>
+          <p>A window is 20 consecutive messages in file order. The dataset labels a window anomalous (abnormal) if any of its messages has an alert label. These are historical evaluation results, not a live system-health monitor.</p>
         </div>
       <div class="drift-warning" id="drift-warning" role="status"></div>
       <div class="instrument-bar">
@@ -93,9 +93,9 @@
               <label class="sr" for="audit-range">Evaluation range</label
               ><select id="audit-range">
                 <option value="all">All evaluation ranges</option>
-                <option value="audit_a">Audit A · first range</option>
-                <option value="audit_b">Audit B · next range</option>
-                <option value="confirmation">Confirmation · final range</option>
+                <option value="audit_a">First range · Audit A</option>
+                <option value="audit_b">Next range · Audit B</option>
+                <option value="confirmation">Final range · confirmation</option>
               </select>
               <div
                 class="model-switch"
@@ -116,9 +116,10 @@
               </div>
             </div>
           </div>
+          <p class="usage-note">Word CNN combines three convolutional neural networks that learn message phrases. The long short-term memory network (LSTM) learns to predict the next message template. “New threshold” uses that same LSTM with a different alert cutoff.</p>
           <div class="chart-key">
             <span><i class="line-key"></i>MODEL SCORE</span
-            ><span><i class="line-key dashed"></i>FROZEN THRESHOLD</span
+            ><span><i class="line-key dashed"></i>ALERT THRESHOLD</span
             ><span><i class="band-key"></i>LABELED ANOMALY</span>
           </div>
           <div id="signal" class="signal"></div>
@@ -127,7 +128,7 @@
             ><span id="threshold-label"></span>
           </div>
         </section>
-        <p class="usage-note">Scores above the threshold are flagged. The chart shows the maximum score in each display bin; shaded bins contain at least one labeled anomaly. Choose a window below to inspect exact messages and scores. Score scales differ between models.</p>
+        <p class="usage-note">Scores above the threshold are flagged. The chart shows the highest score in each displayed group of windows; shaded groups contain at least one window labeled anomalous. Choose a window below to inspect exact messages and scores. Score scales differ between models.</p>
         <div class="monitor-notes">
           <span
             ><i class="cyan-dot"></i>Threshold fixed before evaluation</span
@@ -237,8 +238,8 @@
             <div id="analysis-status" role="status" aria-live="polite"></div>
           </section>
           <aside class="replay-note">
-            <span class="section-caption">HOW TO INTERPRET REPLAY</span>
-            <h2>A score,<br /> with limits.</h2>
+            <span class="section-caption">HOW TO READ THE RESULTS</span>
+            <h2>What does<br /> the score mean?</h2>
             <p>
               Flagged means the score exceeds the saved threshold. Below
               threshold means it does not; it does not prove the log is normal.
@@ -247,7 +248,7 @@
               Scores are not outage probabilities. These models were evaluated
               on BGL logs. Other systems need their own training and validation.
             </p>
-            <p>Blank lines are ignored. Incomplete trailing groups are unused. The word CNN reads the first 16 word tokens per message. Coverage checks can reject obvious unsupported input, but cannot confirm that a log belongs to the training domain.</p>
+            <p>Blank lines are ignored. Any lines left after the last complete group of 20 are unused. The word CNN reads the first 16 word tokens per message. Input checks can reject obvious unsupported text, but recognized words do not prove that the model is suitable for your logs.</p>
             <label for="replay-model">Detector</label
             ><select id="replay-model">
               <option value="calibrated">Word CNN ensemble</option>
@@ -267,8 +268,8 @@
           <div class="kicker">TRAINING AND EVALUATION</div>
           <h1 id="protocol-title">How the models<br /><em>were evaluated.</em></h1>
           <p class="intro">
-            Follow the data from training to threshold calibration and later
-            evaluation. Inspect the recorded boundaries and known limitations.
+            See how the models were trained, how their alert thresholds were chosen, and how they performed in later
+            evaluation. Review which data was used at each step and the known limitations.
           </p>
         </div>
         <div id="protocol-content"></div>

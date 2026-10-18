@@ -1,10 +1,10 @@
 # TraceLens
 
-**Find unusual system-log messages. Inspect the evidence. Measure the false-alarm cost.**
+**Find unusual system-log messages. Inspect the evidence. Measure the false alarms.**
 
-TraceLens helps you find and investigate unusual system-log messages using deep learning. It groups messages into 20-line windows, scores each window, and flags those above a fixed alert threshold. You can inspect the messages, compare models, and see which labeled anomalies were caught or missed—and which normal windows triggered false alarms.
+TraceLens helps you find and investigate unusual system-log messages using deep learning. It groups messages into 20-message groups, called windows, scores each window, and flags those above a fixed alert threshold. You can inspect the messages, compare models, and see which windows the dataset marks as abnormal, which of those the model catches or misses, and which normal windows trigger false alarms.
 
-The project asks a practical question: **can a model catch more abnormal log behavior while keeping false alarms manageable as the logs change?**
+The project asks a practical question: **can a model catch more abnormal messages without overwhelming the reviewer with false alarms as the logs change?**
 
 ![TraceLens log analysis workspace](docs/images/app-language-overview.jpg)
 
@@ -12,7 +12,7 @@ The project asks a practical question: **can a model catch more abnormal log beh
 
 A system log can contain millions of repetitive messages with a small number of unusual events mixed in. Searching for an error keyword is a useful starting point, but it does not tell you how many relevant events you missed, how many alerts were false alarms, or whether a detector still works on later logs.
 
-TraceLens brings detection, inspection, and evaluation into one workspace. It uses real logs from the Blue Gene/L supercomputer to make those questions concrete. Its current scope is historical log analysis and model evaluation; applying it to another system requires training and validation for that system.
+TraceLens brings detection, inspection, and evaluation into one workspace. It uses real logs from the Blue Gene/L (BGL) supercomputer to make those questions concrete. Its current scope is historical log analysis and model evaluation; applying it to another system requires training and validation for that system.
 
 I started TraceLens while studying deep learning in graduate school. I wanted to understand how neural networks learn patterns in repetitive machine-generated text, and whether an alert threshold would still work when the logs changed.
 
@@ -22,19 +22,19 @@ I started TraceLens while studying deep learning in graduate school. I wanted to
 | --- | --- |
 | **Which groups of messages does the model flag?** | Browse scores over the log file and open the exact 20-message window behind a decision. |
 | **Which messages received the strongest model response?** | Inspect message scores alongside the text. These show model responses, not proven causes. |
-| **What did the detector miss, and which alerts were false?** | Filter the labeled evaluation data into flagged windows, missed anomalies, and false positives. |
+| **What did the detector miss, and which alerts were false?** | Use the dataset labels to find flagged windows, windows labeled abnormal that were missed, and false alarms. |
 | **Does changing the model help more than changing the threshold alone?** | Compare a sequence model, that same model with a new alert threshold, and a model that learns message phrases on identical evaluation windows. |
 | **Does a threshold keep working on later logs?** | Compare recall, precision, and false-positive rates across three later sections of the log. |
-| **How does the trained model respond to a supplied sample?** | Paste or import messages and run local inference, with word-coverage, truncation, and unsupported-input feedback. |
+| **How does the trained model respond to a supplied sample?** | Paste or import messages and run the saved models on your machine. See which words they recognize and whether any messages were too long or could not be scored reliably. |
 
-## Try the investigation
+## Start exploring
 
 Trained models and evaluation results are included, so you can explore the project without training a model first.
 
-1. **Explore logs:** select a flagged window and inspect its messages. One sample contains repeated corrected-parity messages followed by a machine-check interrupt; the inspector shows how differently the model responds to each message.
+1. **Explore logs:** select a flagged window and inspect its messages. The bundled example includes routine error-correction messages followed by a machine-check interrupt. Compare the model response to each message; the scores alone do not explain the cause.
 2. **Investigate mistakes:** switch to **Missed anomalies** or **False positives**. Compare the model's response with the dataset labels.
 3. **Compare models:** compare the three detectors and see how performance changes across later log ranges.
-4. **Try a sample:** load an example or import a sample and run the saved models locally. Pasted logs have no ground truth, so replay reports scores and input checks rather than accuracy.
+4. **Try a sample:** load an example or import a sample and run the saved models locally. The app has no verified labels for pasted logs, so it can show model scores but cannot measure their accuracy.
 5. **Method:** inspect the training boundaries, threshold selection, and recorded evaluation procedure.
 
 ## What the experiment found
@@ -51,16 +51,16 @@ The comparison covers **112,398 non-overlapping windows of 20 messages**, includ
 
 In counts, the CNN finds **3,448 of 7,439 anomalous windows**, misses **3,991**, and incorrectly flags **3,952 normal windows**. Its higher recall comes with a substantial review burden.
 
-**The threshold met its 1% normal false-positive constraint during calibration, then exceeded it in every later evaluation range.** TraceLens makes that change visible. This is the central finding: better detection on one measure does not by itself make a detector reliable enough to deploy.
+**When the threshold was set, fewer than 1% of normal windows were flagged. In every later evaluation range, the false-positive rate exceeded that 1% target.** TraceLens makes that change visible. This is the central finding: better detection on one measure does not by itself make a detector reliable enough to deploy.
 
-The recall improvement appears in all three later ranges. A post-hoc sensitivity check finds positive recall-difference intervals across four bootstrap block lengths, while the false-positive increase persists. See the [complete evaluation](docs/CALIBRATION_AUDIT.md) for per-range results, average precision, confusion matrices, and uncertainty estimates, and the [review](docs/REVIEW.md) for the sensitivity analysis and remaining work.
+The CNN catches more labeled anomalies in each of the three later ranges, with more false alarms too. Additional checks of the statistical uncertainty support that tradeoff. The [evaluation report](docs/CALIBRATION_AUDIT.md) and [review](docs/REVIEW.md) explain the methods, results for each range, and remaining uncertainties.
 
 ## How the models work
 
 TraceLens compares two ways to learn from logs:
 
 - **Sequence models:** an LSTM and a causal temporal CNN learn to predict the next event identity from normal training windows. An event identity represents a normalized message template, with variable values such as numbers replaced by placeholders. Unexpected events receive higher surprise scores.
-- **Message-content model:** a word-level CNN learns phrase patterns using labeled training windows. Three independently seeded models average their per-message activations; the highest averaged activation becomes the window score. It can recognize familiar words within a new event template, but does not model the order of messages across a window.
+- **Message-content model:** a word-level CNN learns phrase patterns using labeled training windows. Three models trained with different random seeds average their scores for each message. These message scores are called activations; the highest average becomes the window score. It can recognize familiar words within a new event template, but does not model the order of messages across a window.
 
 Only message content enters the models. Alert-category labels, severity, timestamps, and node metadata are excluded from input features. Training, model selection, threshold calibration, and later evaluation use separate file ranges. Model weights and thresholds were fixed before opening the later evaluation predictions.
 
@@ -68,14 +68,14 @@ The [deep learning notes](docs/DEEP_LEARNING_NOTES.md) explain the computation g
 
 ## Run locally
 
-Python 3.11+; verified on Python 3.12 / Windows / CPU PyTorch. No cloud model API, GPU, or frontend build is required. Trained checkpoints and derived evaluation artifacts are bundled.
+Requires Python 3.11 or newer. Verified on Windows with Python 3.12 and CPU PyTorch. The trained models and saved results are included. You do not need a GPU, a cloud AI service, or a separate build step for the interface.
 
 ```shell
 git clone https://github.com/bryanbans/tracelens.git
 cd tracelens
 ```
 
-On Windows, run `Launch TraceLens.cmd` to create/install a project-local environment on first launch. Or use:
+On Windows, run `Launch TraceLens.cmd` to set up a Python environment and install dependencies on first launch. Or use:
 
 ```powershell
 python -m venv .venv
@@ -104,16 +104,16 @@ node --check tracelens/web/v2.js
 
 The source BGL archive is approximately 57.5 MB compressed. Raw logs are not bundled. Checkpoints, the frozen procedure, archive hash, all audit scores, paired intervals, and confusion matrices are retained. The release packs templates and exact numerical scores in `traces.json.gz`; packing does not alter evaluation decisions. `scripts/compact_audit.py` reproduces the release packing for the default validated directory from its raw audit export.
 
-The audit command verifies frozen hashes before scoring and refuses an in-place repeat after a report exists. A separate output directory makes reproduction explicit. Subsequent tuning needs new holdouts; these audited ranges are now inspected.
+The audit command verifies frozen hashes before scoring and refuses an in-place repeat after a report exists. A separate output directory makes reproduction explicit. Further tuning needs new evaluation data. These ranges have already been examined.
 
-## Deep learning evidence
+## Technical skills demonstrated
 
 - Learned embeddings; recurrent LSTM state; causal dilated residual convolutions; word-level phrase convolutions; GELU; token and event max pooling.
 - Minibatch backpropagation, AdamW, weight decay, dropout, clipped gradients, seeded training, and held-out epoch selection.
 - Event-frequency baselines, three-seed sequence experiments, order/dropout ablations, supervised content modeling, calibration policy selection, and paired temporal evaluation.
 - Tests for causality, label exclusion, train-only vocabulary, split separation, a finite-difference gradient check, strict/tied thresholds, budget optimization, packed artifact integrity, and live inference parity.
 
-## Source map
+## Where to find the code
 
 ```text
 tracelens/
@@ -145,12 +145,14 @@ docs/
 - [Historical v1 case study](docs/CASE_STUDY.md) and [v1 README](docs/README_V1.md)
 - [Data attribution and terms](THIRD_PARTY_NOTICES.md)
 
-## Limits
+## What to keep in mind
 
-BGL is historical supercomputer data. File-order windows may mix nodes. Labels indicate retrospective alert messages, not future outages. The word model truncates events to 16 tokens; activations are not calibrated outage probabilities. Coarse class counts across the archive were previously inspected, so the new ranges are prediction-blind temporal audits, not pristine label-blind external replication. The 1% normal-FPR target was missed on every audit range. No audit-driven retuning was used to hide that result.
+The results come from one historical supercomputer dataset. Consecutive messages can come from different machines. Dataset labels identify abnormal messages that have already occurred; they do not establish that the model predicts future outages. The word model reads only the first 16 word tokens per message, and its scores are not outage probabilities.
 
-The CNN uses labeled training windows, while the original sequence models train on normal windows only. The comparison combines changes in representation, supervision, model, and calibration. A similarly supervised simple text-classification baseline is still needed to isolate the value of deep learning. Further tuning needs new evaluation data.
+Counts of normal and abnormal records across the archive were inspected before this evaluation. Later predictions were kept separate from model and threshold selection, but this was not an independent test on a new dataset. The threshold missed its 1% false-positive target in all three later ranges, and it was not adjusted to improve those results.
 
-The first CNN freeze omitted an independent word-vocabulary hash. The retained mapping matches the training copy, and release checksums now protect it, but that cannot retroactively supply the missing pre-evaluation commitment. See the full disclosure in the [evaluation report](docs/CALIBRATION_AUDIT.md).
+The CNN uses labeled training windows, while the original sequence models train on normal windows only. Several things change together: the information the model receives, its training objective and labels, the network design, and the alert threshold. A simple text classifier trained with the same labels is still needed to establish how much deep learning itself contributes. Further tuning needs new evaluation data.
 
-The app binds to loopback and processes input locally. Its inference form is for this learned domain; other log formats require their own training and validation. Project code is MIT licensed; BGL-derived artifacts retain Loghub's separate research/academic terms and attribution requirements.
+The original evaluation record omitted a separate checksum—a file fingerprint—for the CNN word-to-number mapping. The retained mapping matches the training copy and is now covered by release checksums. Those later checks cannot prove that it was unchanged before evaluation. See the full disclosure in the [evaluation report](docs/CALIBRATION_AUDIT.md).
+
+The app accepts connections from your own machine and processes input locally. Its sample-scoring form uses models trained on BGL logs; other log formats require their own training and validation. Project code is MIT licensed; BGL-derived artifacts retain Loghub's separate research/academic terms and attribution requirements.
