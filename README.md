@@ -1,8 +1,8 @@
 # TraceLens
 
-**Find unusual system-log messages. Inspect the evidence. Measure the false alarms.**
+**Find unusual system-log messages. Inspect the evidence. Measure false alarms.**
 
-TraceLens helps you find and investigate unusual system-log messages using deep learning. It groups messages into 20-message groups, called windows, scores each window, and flags those above a fixed alert threshold. You can inspect the messages, compare models, and see which windows the dataset marks as abnormal, which of those the model catches or misses, and which normal windows trigger false alarms.
+TraceLens analyzes system logs with deep learning and shows the messages behind each alert. It scores 20 messages at a time—a group called a window—and flags windows above a fixed alert threshold. Compare those flags with the dataset's labels to find correct detections, missed anomalies, and false alarms.
 
 The project asks a practical question: **can a model catch more abnormal messages without overwhelming the reviewer with false alarms as the logs change?**
 
