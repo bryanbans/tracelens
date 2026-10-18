@@ -2,13 +2,11 @@
 
 **Find unusual system-log messages. Inspect the evidence. Measure the false-alarm cost.**
 
-TraceLens is a deep learning workbench for investigating anomalies in system logs. It scores groups of log messages, lets you inspect the messages behind a flagged window, and measures how many labeled anomalies the detector catches or misses. You can compare models, examine false positives, and replay messages through trained models on your own machine.
+TraceLens helps you find and investigate unusual system-log messages using deep learning. It groups messages into 20-line windows, scores each window, and flags those above a fixed alert threshold. You can inspect the messages, compare models, and see which labeled anomalies were caught or missed—and which normal windows triggered false alarms.
 
 The project asks a practical question: **can a model catch more abnormal log behavior while keeping false alarms manageable as the logs change?**
 
-Built after D802 Deep Learning in a computer science master's program in AI/ML, TraceLens explores how neural networks learn from machine-generated text and how those models should be evaluated before anyone relies on their alerts.
-
-![TraceLens v2 observatory](docs/images/app-language-overview.jpg)
+![TraceLens log analysis workspace](docs/images/app-language-overview.jpg)
 
 ## The problem
 
@@ -16,14 +14,16 @@ A system log can contain millions of repetitive messages with a small number of 
 
 TraceLens brings detection, inspection, and evaluation into one workspace. It uses real logs from the Blue Gene/L supercomputer to make those questions concrete. Its current scope is historical log analysis and model evaluation; applying it to another system requires training and validation for that system.
 
+I started TraceLens while studying deep learning in graduate school. I wanted to understand how neural networks learn patterns in repetitive machine-generated text, and whether an alert threshold would still work when the logs changed.
+
 ## What questions does TraceLens answer?
 
 | Question | How TraceLens helps |
 | --- | --- |
 | **Which groups of messages does the model flag?** | Browse scores over the log file and open the exact 20-message window behind a decision. |
-| **Which messages received the strongest model response?** | Inspect per-message CNN activations alongside the message content. These show model responses, not proven causes. |
+| **Which messages received the strongest model response?** | Inspect message scores alongside the text. These show model responses, not proven causes. |
 | **What did the detector miss, and which alerts were false?** | Filter the labeled evaluation data into flagged windows, missed anomalies, and false positives. |
-| **Does changing the model help more than changing the threshold alone?** | Compare the original LSTM, the same LSTM with a recalibrated threshold, and the word CNN ensemble on identical evaluation windows. |
+| **Does changing the model help more than changing the threshold alone?** | Compare a sequence model, that same model with a new alert threshold, and a model that learns message phrases on identical evaluation windows. |
 | **Does a threshold keep working on later logs?** | Compare recall, precision, and false-positive rates across three later sections of the log. |
 | **How does the trained model respond to a supplied sample?** | Paste or import messages and run local inference, with word-coverage, truncation, and unsupported-input feedback. |
 
@@ -31,7 +31,7 @@ TraceLens brings detection, inspection, and evaluation into one workspace. It us
 
 Trained models and evaluation results are included, so you can explore the project without training a model first.
 
-1. **Explore logs:** select a flagged window and inspect its messages. One sample contains repeated corrected-parity messages followed by a machine-check interrupt; the inspector shows how differently the CNN responds to each message.
+1. **Explore logs:** select a flagged window and inspect its messages. One sample contains repeated corrected-parity messages followed by a machine-check interrupt; the inspector shows how differently the model responds to each message.
 2. **Investigate mistakes:** switch to **Missed anomalies** or **False positives**. Compare the model's response with the dataset labels.
 3. **Compare models:** compare the three detectors and see how performance changes across later log ranges.
 4. **Try a sample:** load an example or import a sample and run the saved models locally. Pasted logs have no ground truth, so replay reports scores and input checks rather than accuracy.
@@ -39,7 +39,7 @@ Trained models and evaluation results are included, so you can explore the proje
 
 ## What the experiment found
 
-The word CNN catches more labeled anomalies than the original LSTM on the same later log windows, but it also creates more false alarms.
+The model that learns message phrases catches more labeled anomalies than the original sequence model on the same later log windows, but it also creates more false alarms. The phrase model is a **convolutional neural network (CNN)**; the original sequence model is a **long short-term memory network (LSTM)**. The CNN ensemble combines three separately trained networks.
 
 The comparison covers **112,398 non-overlapping windows of 20 messages**, including **7,439 labeled anomalous windows**. A window is labeled anomalous if it contains at least one dataset-labeled abnormal message.
 
@@ -59,7 +59,7 @@ The recall improvement appears in all three later ranges. A post-hoc sensitivity
 
 TraceLens compares two ways to learn from logs:
 
-- **Sequence models:** an LSTM and a causal temporal CNN learn to predict the next event identity from normal training windows. Unexpected events receive higher surprise scores.
+- **Sequence models:** an LSTM and a causal temporal CNN learn to predict the next event identity from normal training windows. An event identity represents a normalized message template, with variable values such as numbers replaced by placeholders. Unexpected events receive higher surprise scores.
 - **Message-content model:** a word-level CNN learns phrase patterns using labeled training windows. Three independently seeded models average their per-message activations; the highest averaged activation becomes the window score. It can recognize familiar words within a new event template, but does not model the order of messages across a window.
 
 Only message content enters the models. Alert-category labels, severity, timestamps, and node metadata are excluded from input features. Training, model selection, threshold calibration, and later evaluation use separate file ranges. Model weights and thresholds were fixed before opening the later evaluation predictions.
@@ -122,7 +122,7 @@ tracelens/
   calibration.py     # scoring rules, budgeted thresholds, paired bootstrap
   audit.py           # development freeze, then separate temporal audit
   api.py             # packed artifacts and real ensemble inference
-  web/v2.*           # signal observatory UI
+  web/v2.*           # current log analysis interface
 artifacts/
   portfolio/         # original experiments, preserved
   semantic/          # three content-CNN checkpoints and training histories
@@ -133,11 +133,11 @@ tests/
 docs/
 ```
 
-## Reading and portfolio material
+## Further reading
 
-- [Calibration audit and measured v2 findings](docs/CALIBRATION_AUDIT.md)
+- [Evaluation methods and results](docs/CALIBRATION_AUDIT.md)
 - [Current model card](docs/MODEL_CARD.md)
-- [v2 specification](docs/SPEC_V2.md)
+- [Project specification](docs/SPEC_V2.md)
 - [Deep learning mechanics](docs/DEEP_LEARNING_NOTES.md)
 - [Release validation](docs/VALIDATION.md)
 - [Review findings and next experiments](docs/REVIEW.md)
