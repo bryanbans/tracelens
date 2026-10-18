@@ -1,0 +1,22 @@
+{
+  "max_lines": 1000000,
+  "window_size": 20,
+  "embedding": 32,
+  "hidden": 64,
+  "dropout": 0.15,
+  "learning_rate": 0.002,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "batch_size": 128,
+  "epochs": 8,
+  "patience": 3,
+  "normal_quantile": 0.99,
+  "threads": 4,
+  "seeds": [17, 42, 73],
+  "experiments": [
+    {"id": "lstm", "name": "LSTM", "architecture": "lstm", "description": "Learned embeddings + 64-unit causal LSTM."},
+    {"id": "tcn", "name": "Temporal CNN", "architecture": "tcn", "description": "Residual causal convolutions with dilation 1, 2, 4."},
+    {"id": "lstm-shuffle", "name": "LSTM · shuffled training", "architecture": "lstm", "shuffle_train": true, "description": "Order ablation: permute positions 2–20 once per seed, preserving initial context and target counts."},
+    {"id": "lstm-no-dropout", "name": "LSTM · no dropout", "architecture": "lstm", "dropout": 0.0, "description": "Regularization ablation: dropout 0 instead of 0.15; all other settings unchanged."}
+  ]
+}

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+# These files are byte-hashed scientific evidence; never normalize line endings.
+artifacts/** -text
+*.pt -text
+*.gz -text
+*.jpg -text

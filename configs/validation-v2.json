@@ -1,0 +1,59 @@
+{
+  "protocol_version": "tracelens-calibration-v2",
+  "window_size": 20,
+  "development_calibration": [
+    1000000,
+    1500000
+  ],
+  "development_selection": [
+    1500000,
+    2000000
+  ],
+  "deployment_calibration": [
+    2000000,
+    2500000
+  ],
+  "audit_ranges": {
+    "audit_a": [
+      2500000,
+      3250000
+    ],
+    "audit_b": [
+      3250000,
+      4000000
+    ],
+    "confirmation": [
+      4000000,
+      4747963
+    ]
+  },
+  "families": [
+    "lstm",
+    "tcn",
+    "semantic"
+  ],
+  "seeds": [
+    17,
+    42,
+    73
+  ],
+  "aggregation_candidates": [
+    "mean",
+    "top3",
+    "max"
+  ],
+  "threshold_candidates": [
+    "normal_quantile_99",
+    "f2_budget"
+  ],
+  "normal_fpr_budget": 0.01,
+  "selection_objective": "highest development-selection F2 subject to normal FPR <= 1%; ties use AP then lexical candidate ID",
+  "fallback": "if no candidate satisfies selection FPR budget, choose lowest selection normal FPR then highest F2; declare infeasibility",
+  "legacy_comparator": "lstm-s17 with original mean score and original frozen threshold",
+  "bootstrap": {
+    "block_size": 250,
+    "repetitions": 500,
+    "seed": 2026
+  },
+  "disclosure": "Coarse archive-wide label counts were inspected during v1 development. No audit predictions or individual audit labels are used to select v2. Legacy checkpoints stay frozen. Semantic CNNs use content words, supervised window labels on lines 1\u2013600000, and checkpoint selection on lines 600001\u20131000000. This is a prediction-blind temporal audit, not a pristine label-blind external replication. Development initially tried sequence-only candidates; semantic candidates were added before audit predictions were opened."
+}

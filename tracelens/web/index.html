@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="TraceLens — investigate system log anomalies with reproducible deep learning experiments."
+    />
+    <meta name="theme-color" content="#142b2c" />
+    <title>TraceLens / Log intelligence</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23142b2c'/%3E%3Cpath d='M6 23h7l4-12 6 21 4-12h7' fill='none' stroke='%238ee7c2' stroke-width='3'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="TraceLens home"
+        ><span class="brandmark"
+          ><svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M2 18h7l4-11 6 20 4-12h7" /></svg></span
+        >TraceLens<span class="brand-dot">.</span></a
+      >
+      <div class="workspace">
+        <span class="workspace-icon">TL</span>
+        <div>Research workspace<small>Personal portfolio</small></div>
+        <span class="workspace-dots">•••</span>
+      </div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a href="#overview" data-page="overview" class="active"
+          ><span class="nav-icon">◫</span>Signal overview</a
+        >
+        <a href="#models" data-page="models"
+          ><span class="nav-icon">⌘</span>Model lab</a
+        >
+        <a href="#analyze" data-page="analyze"
+          ><span class="nav-icon">≋</span>Analyze logs<span class="nav-new"
+            >TRY</span
+          ></a
+        >
+        <a href="#method" data-page="method"
+          ><span class="nav-icon">▤</span>Method & evidence</a
+        >
+      </nav>
+      <div class="side-note">
+        <span class="tiny-pulse"></span
+        ><strong>From events to evidence.</strong>
+        <p>Explore what sequence models learn about system behavior.</p>
+        <span class="side-tag">DEEP LEARNING / D802</span>
+      </div>
+      <div class="side-bottom">
+        <span class="avatar">R</span>
+        <div>Independent research<small>Local inference · CPU</small></div>
+        <span class="status-dot"></span>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="topbar">
+        <div>
+          <span class="crumb">Workspace</span><span class="slash">/</span
+          ><span id="breadcrumb">Signal overview</span>
+        </div>
+        <div class="top-right">
+          <span class="local-pill"><i></i>Local workspace</span
+          ><a href="/api/docs" target="_blank" rel="noopener">API docs ↗</a>
+        </div>
+      </header>
+      <main id="main" tabindex="-1">
+        <div id="loading" class="loading">
+          <span class="spinner"></span>
+          <h1>Reading the signal.</h1>
+          <p>Loading saved experiments and test predictions…</p>
+        </div>
+        <div id="fatal" class="hidden error-panel" role="alert"></div>
+        <section
+          id="page-overview"
+          class="page hidden"
+          aria-labelledby="overview-title"
+        >
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">SYSTEM LOG INTELLIGENCE</div>
+              <h1 id="overview-title">
+                Find the signal in the noise<span>.</span>
+              </h1>
+              <p>Investigate abnormal event sequences. Follow the evidence.</p>
+            </div>
+            <button class="button primary" id="export-report">
+              ↓ Export results
+            </button>
+          </div>
+          <div class="dataset-strip">
+            <div class="dataset-name">
+              <span class="data-icon">▥</span><strong>Blue Gene/L</strong
+              ><span class="subtle">Supercomputer system logs</span
+              ><span class="badge neutral">REAL DATA</span>
+            </div>
+            <div id="dataset-meta" class="mono"></div>
+          </div>
+          <div class="controls-row">
+            <div class="section-label">
+              <span class="status-dot"></span>Held-out test stream
+            </div>
+            <label class="model-picker"
+              >Active model
+              <select id="model-select" aria-label="Active model"></select
+            ></label>
+          </div>
+          <div class="stats" id="stats"></div>
+          <div class="signal-grid">
+            <section class="panel signal-panel" aria-labelledby="signal-title">
+              <div class="panel-top">
+                <div>
+                  <h2 id="signal-title">Signal across the stream</h2>
+                  <p>Mean next-event surprise per 20-event window</p>
+                </div>
+                <span class="badge neutral" id="window-count"></span>
+              </div>
+              <div class="chart-legend">
+                <span><i class="legend-line"></i>Anomaly score</span
+                ><span><i class="legend-line dashed"></i>Alert threshold</span
+                ><span><i class="legend-block"></i>Labeled anomaly</span>
+              </div>
+              <div id="signal-chart" class="signal-chart"></div>
+              <div class="chart-footer">
+                <span>Consecutive test windows →</span
+                ><span id="chart-caption"
+                  >Each plotted bin retains its maximum score.</span
+                >
+              </div>
+              <div class="threshold-control">
+                <div>
+                  <label for="sensitivity">Alert calibration</label
+                  ><span id="quantile-value">99th percentile</span>
+                </div>
+                <input
+                  type="range"
+                  id="sensitivity"
+                  min="950"
+                  max="999"
+                  value="990"
+                  step="1"
+                />
+                <div class="range-caption">
+                  <span>More sensitive</span><span>Fewer alerts</span>
+                </div>
+              </div>
+            </section>
+            <aside class="panel model-card">
+              <div class="card-eyebrow">UNDER THE HOOD <span>↗</span></div>
+              <div class="network-art" aria-hidden="true">
+                <svg viewBox="0 0 230 95">
+                  <g class="connections">
+                    <path
+                      d="M30 20L110 15M30 20L110 47M30 20L110 80M30 47L110 15M30 47L110 47M30 47L110 80M30 75L110 15M30 75L110 47M30 75L110 80M110 15L200 35M110 15L200 65M110 47L200 35M110 47L200 65M110 80L200 35M110 80L200 65"
+                    />
+                  </g>
+                  <g class="nodes">
+                    <circle cx="30" cy="20" r="5" />
+                    <circle cx="30" cy="47" r="5" />
+                    <circle cx="30" cy="75" r="5" />
+                    <circle cx="110" cy="15" r="6" />
+                    <circle cx="110" cy="47" r="6" />
+                    <circle cx="110" cy="80" r="6" />
+                    <circle cx="200" cy="35" r="7" />
+                    <circle cx="200" cy="65" r="7" />
+                  </g>
+                </svg>
+              </div>
+              <h2 id="model-name"></h2>
+              <p id="model-description"></p>
+              <dl id="model-facts"></dl>
+              <a href="#models" class="text-link"
+                >Explore the experiments <span>→</span></a
+              >
+            </aside>
+          </div>
+          <section class="panel investigation">
+            <div class="panel-top">
+              <div>
+                <h2>Sequence explorer</h2>
+                <p>Inspect alerts, missed anomalies, and false positives.</p>
+              </div>
+              <span class="badge mint">GROUND TRUTH AVAILABLE</span>
+            </div>
+            <div class="table-tools">
+              <div class="tabs" aria-label="Filter windows">
+                <button data-filter="all" class="active" aria-pressed="true">
+                  All windows</button
+                ><button data-filter="alerts" aria-pressed="false">
+                  Alerts</button
+                ><button data-filter="missed" aria-pressed="false">
+                  Missed anomalies</button
+                ><button data-filter="false" aria-pressed="false">
+                  False positives
+                </button>
+              </div>
+              <label class="search"
+                ><span aria-hidden="true">⌕</span
+                ><input
+                  id="search"
+                  placeholder="Search event content or line…"
+                  aria-label="Search event content or line"
+              /></label>
+            </div>
+            <div class="table-scroll">
+              <table class="trace-table">
+                <thead>
+                  <tr>
+                    <th>Window / source lines</th>
+                    <th>Event preview</th>
+                    <th>Surprise</th>
+                    <th>Model decision</th>
+                    <th>Dataset label</th>
+                    <th><span class="sr-only">Inspect</span></th>
+                  </tr>
+                </thead>
+                <tbody id="trace-rows"></tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <span id="table-count" aria-live="polite"></span>
+              <div>
+                <button class="button small" id="prev-page">← Previous</button
+                ><button class="button small" id="next-page">Next →</button>
+              </div>
+            </div>
+          </section>
+          <p class="footnote">
+            Research prototype · Anomaly scores are not failure probabilities.
+            This experiment detects labeled abnormal windows; it does not
+            establish advance failure prediction.
+          </p>
+        </section>
+        <section
+          id="page-models"
+          class="page hidden"
+          aria-labelledby="models-title"
+        >
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">EXPERIMENTS, NOT ASSUMPTIONS</div>
+              <h1 id="models-title">Does event order matter<span>?</span></h1>
+              <p>
+                Compare architecture, seed stability, and a shuffled-training
+                ablation.
+              </p>
+            </div>
+          </div>
+          <div class="controls-row">
+            <div class="section-label">Compare every experiment</div>
+            <label class="model-picker"
+              >Learning curve
+              <select
+                id="lab-model-select"
+                aria-label="Learning curve model"
+              ></select
+            ></label>
+          </div>
+          <div id="model-summary" class="research-callout"></div>
+          <section class="panel">
+            <div class="panel-top">
+              <div>
+                <h2>Architecture comparison</h2>
+                <p>
+                  Untouched test set · fixed validation-calibrated thresholds ·
+                  no point adjustment
+                </p>
+              </div>
+              <span class="badge neutral">3 SEEDS / NEURAL EXPERIMENT</span>
+            </div>
+            <div class="table-scroll">
+              <table class="comparison">
+                <thead>
+                  <tr>
+                    <th>Experiment</th>
+                    <th>Seed</th>
+                    <th>Average precision</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1</th>
+                    <th>FP / 1k windows</th>
+                    <th>Parameters</th>
+                  </tr>
+                </thead>
+                <tbody id="model-rows"></tbody>
+              </table>
+            </div>
+          </section>
+          <div class="lab-grid">
+            <section class="panel">
+              <div class="panel-top">
+                <div>
+                  <h2>Learning dynamics</h2>
+                  <p>Active checkpoint · normal-window cross-entropy</p>
+                </div>
+              </div>
+              <div id="learning-chart" class="learning-chart"></div>
+              <div class="chart-legend">
+                <span><i class="legend-line"></i>Training</span
+                ><span><i class="legend-line purple"></i>Validation</span>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-top">
+                <div><h2>What the comparison can tell us</h2></div>
+              </div>
+              <div class="prose">
+                <p>
+                  The event-frequency baseline tests how much can be detected
+                  without sequence context.
+                </p>
+                <p>
+                  The shuffled-training LSTM removes order within training
+                  windows while preserving their event counts. Seeds expose
+                  training variability.
+                </p>
+                <p>
+                  A separate test-time permutation probe changes event order
+                  while preserving counts. It measures sensitivity to a
+                  perturbation, not performance on a new real system.
+                </p>
+                <p>
+                  <strong>A larger model is not automatically better.</strong>
+                  Compare precision–recall behavior and false alarms before
+                  selecting an architecture.
+                </p>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section
+          id="page-analyze"
+          class="page hidden"
+          aria-labelledby="analyze-title"
+        >
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">CHECKPOINT → INFERENCE</div>
+              <h1 id="analyze-title">
+                Put a sequence under the lens<span>.</span>
+              </h1>
+              <p>
+                Run the active checkpoint on log messages. All processing stays
+                on this local server.
+              </p>
+            </div>
+          </div>
+          <div class="research-callout">
+            <strong>A focused detector, not a universal log reader.</strong>
+            <p>
+              These models learned Blue Gene/L event templates. New application
+              formats may map to unknown events and trigger alerts. A high score
+              alone does not diagnose a failure.
+            </p>
+          </div>
+          <div class="controls-row">
+            <div class="section-label">Local checkpoint inference</div>
+            <label class="model-picker"
+              >Inference model
+              <select
+                id="analysis-model-select"
+                aria-label="Inference model"
+              ></select
+            ></label>
+          </div>
+          <section class="panel input-panel">
+            <div class="panel-top">
+              <div>
+                <h2>Log input</h2>
+                <p>
+                  20–2,000 nonempty lines · BGL format or one message per line
+                </p>
+              </div>
+              <button id="load-sample" class="button">Load test example</button>
+            </div>
+            <label for="log-input" class="sr-only">Log messages</label
+            ><textarea
+              id="log-input"
+              spellcheck="false"
+              placeholder="Paste log messages here, or load a real held-out test example…"
+            ></textarea>
+            <div class="input-actions">
+              <label class="button file-button"
+                >↑ Open .log / .txt<input
+                  type="file"
+                  id="log-file"
+                  accept=".log,.txt,text/plain" /></label
+              ><span id="input-count" class="subtle">0 lines</span
+              ><button id="analyze-button" class="button primary">
+                Analyze sequence →
+              </button>
+            </div>
+            <div id="analyze-status" role="status" aria-live="polite"></div>
+          </section>
+          <div id="analyze-results"></div>
+        </section>
+        <section
+          id="page-method"
+          class="page hidden"
+          aria-labelledby="method-title"
+        >
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">REPRODUCIBILITY BY DESIGN</div>
+              <h1 id="method-title">
+                Evidence behind the interface<span>.</span>
+              </h1>
+              <p>
+                What was trained, how it was evaluated, and where the claims
+                stop.
+              </p>
+            </div>
+          </div>
+          <div id="method-content"></div>
+        </section>
+        <footer class="main-footer">
+          <span><strong>TraceLens</strong> / Research with receipts.</span
+          ><span>D802 · Deep learning portfolio</span>
+        </footer>
+      </main>
+    </div>
+    <dialog id="trace-dialog" aria-labelledby="trace-title">
+      <div class="drawer-header">
+        <div>
+          <div class="eyebrow">SEQUENCE EVIDENCE</div>
+          <h2 id="trace-title">Window details</h2>
+        </div>
+        <button
+          id="close-dialog"
+          class="icon-button"
+          aria-label="Close window details"
+        >
+          ×
+        </button>
+      </div>
+      <div id="trace-detail"></div>
+    </dialog>
+    <div class="toast hidden" id="toast" role="status"></div>
+  </body>
+</html>

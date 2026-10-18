@@ -1,0 +1,1385 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-18T15:41:48.598786+00:00",
+  "dataset": {
+    "name": "Loghub \u00b7 Blue Gene/L",
+    "source": "https://zenodo.org/records/8196385/files/BGL.zip?download=1",
+    "sha256": "d67fd82a711aea0157a9b83175892c6ee60e384a2ddf5bc51f39118453816da8",
+    "lines": 1000000,
+    "sampling": "first N records in file order; not full-dataset benchmark",
+    "parser": "bgl-content-mask-v1",
+    "vocab_size": 114,
+    "window_size": 20,
+    "splits": {
+      "train": {
+        "records": 600000,
+        "first_line": 1,
+        "last_line": 600000,
+        "windows": 30000,
+        "anomalous_windows": 11919,
+        "discarded_tail_records": 0,
+        "unknown_event_fraction": 0.00011333333333333333
+      },
+      "validation": {
+        "records": 200000,
+        "first_line": 600001,
+        "last_line": 800000,
+        "windows": 10000,
+        "anomalous_windows": 199,
+        "discarded_tail_records": 0,
+        "unknown_event_fraction": 0.000125
+      },
+      "test": {
+        "records": 200000,
+        "first_line": 800001,
+        "last_line": 1000000,
+        "windows": 10000,
+        "anomalous_windows": 212,
+        "discarded_tail_records": 0,
+        "unknown_event_fraction": 0.155495
+      }
+    }
+  },
+  "config": {
+    "max_lines": 1000000,
+    "window_size": 20,
+    "embedding": 32,
+    "hidden": 64,
+    "dropout": 0.15,
+    "learning_rate": 0.002,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "batch_size": 128,
+    "epochs": 8,
+    "patience": 3,
+    "normal_quantile": 0.99,
+    "threads": 4,
+    "seeds": [
+      17,
+      42,
+      73
+    ],
+    "experiments": [
+      {
+        "id": "lstm",
+        "name": "LSTM",
+        "architecture": "lstm",
+        "description": "Learned embeddings + 64-unit causal LSTM."
+      },
+      {
+        "id": "tcn",
+        "name": "Temporal CNN",
+        "architecture": "tcn",
+        "description": "Residual causal convolutions with dilation 1, 2, 4."
+      },
+      {
+        "id": "lstm-shuffle",
+        "name": "LSTM \u00b7 shuffled training",
+        "architecture": "lstm",
+        "shuffle_train": true,
+        "description": "Order ablation: permute positions 2\u201320 once per seed, preserving initial context and target counts."
+      },
+      {
+        "id": "lstm-no-dropout",
+        "name": "LSTM \u00b7 no dropout",
+        "architecture": "lstm",
+        "dropout": 0.0,
+        "description": "Regularization ablation: dropout 0 instead of 0.15; all other settings unchanged."
+      }
+    ]
+  },
+  "selected_model": "lstm-s17",
+  "runs": [
+    {
+      "id": "unigram",
+      "name": "Event frequency",
+      "architecture": "unigram",
+      "seed": null,
+      "metrics": {
+        "precision": 0.11098265895953757,
+        "recall": 0.9056603773584906,
+        "f1": 0.19773429454170957,
+        "average_precision": 0.803080046886017,
+        "roc_auc": 0.970685610412442,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 153.79999999999998,
+        "normal_false_positive_rate": 0.15713118103800572,
+        "confusion": {
+          "tn": 8250,
+          "fp": 1538,
+          "fn": 20,
+          "tp": 192
+        },
+        "windows": 10000,
+        "threshold": 8.525918792235888,
+        "ap_block_bootstrap_95": [
+          0.5277356207459725,
+          0.925289781003325
+        ]
+      },
+      "parameters": 114,
+      "history": [],
+      "train_seconds": 0,
+      "description": "Laplace-smoothed unigram; ignores order.",
+      "checkpoint": null
+    },
+    {
+      "id": "lstm-s17",
+      "name": "LSTM",
+      "architecture": "lstm",
+      "seed": 17,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.06132075471698113,
+        "f1": 0.11555555555555555,
+        "average_precision": 0.8499723003196478,
+        "roc_auc": 0.9842968093391214,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 199,
+          "tp": 13
+        },
+        "windows": 10000,
+        "threshold": 6.07032585144043,
+        "ap_block_bootstrap_95": [
+          0.591174653433638,
+          0.9655634329787821
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1487946848341615,
+          "validation_loss": 3.7696025371551514,
+          "gradient_norm_mean_before_clip": 0.4331830688555476
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2845801578545279,
+          "validation_loss": 3.2975571155548096,
+          "gradient_norm_mean_before_clip": 0.12886839617096202
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.20323174638555916,
+          "validation_loss": 2.9704031944274902,
+          "gradient_norm_mean_before_clip": 0.10575349101613105
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.1716653364894137,
+          "validation_loss": 2.610653877258301,
+          "gradient_norm_mean_before_clip": 0.09424952934430518
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.15416544288236952,
+          "validation_loss": 2.396824836730957,
+          "gradient_norm_mean_before_clip": 0.0860736916287684
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.14375922485619846,
+          "validation_loss": 2.29915189743042,
+          "gradient_norm_mean_before_clip": 0.07103265898013619
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.13742000192418627,
+          "validation_loss": 2.3301329612731934,
+          "gradient_norm_mean_before_clip": 0.06771397614248202
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.1334037186841536,
+          "validation_loss": 2.403918504714966,
+          "gradient_norm_mean_before_clip": 0.06587950911530306
+        }
+      ],
+      "train_seconds": 11.324399000004632,
+      "checkpoint": "lstm-s17.pt",
+      "description": "Learned embeddings + 64-unit causal LSTM.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.02035471796989441,
+        "metrics": {
+          "precision": 0.8235294117647058,
+          "recall": 0.0660377358490566,
+          "f1": 0.1222707423580786,
+          "average_precision": 0.8291940367626195,
+          "roc_auc": 0.984148861524701,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.3,
+          "normal_false_positive_rate": 0.0003064977523498161,
+          "confusion": {
+            "tn": 9785,
+            "fp": 3,
+            "fn": 198,
+            "tp": 14
+          },
+          "windows": 10000,
+          "threshold": 6.07032585144043
+        }
+      }
+    },
+    {
+      "id": "lstm-s42",
+      "name": "LSTM",
+      "architecture": "lstm",
+      "seed": 42,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.014150943396226415,
+        "f1": 0.027906976744186046,
+        "average_precision": 0.8622332582502799,
+        "roc_auc": 0.9862013362530939,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 209,
+          "tp": 3
+        },
+        "windows": 10000,
+        "threshold": 6.87733793258667,
+        "ap_block_bootstrap_95": [
+          0.6041884293007059,
+          0.9725549459136013
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1505153669033765,
+          "validation_loss": 3.8824586868286133,
+          "gradient_norm_mean_before_clip": 0.4539707182893451
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2890117480633078,
+          "validation_loss": 3.4679484367370605,
+          "gradient_norm_mean_before_clip": 0.12599163833008686
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.20268085877255565,
+          "validation_loss": 3.1775057315826416,
+          "gradient_norm_mean_before_clip": 0.10206762541242888
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.17258521418600878,
+          "validation_loss": 2.870662212371826,
+          "gradient_norm_mean_before_clip": 0.10004110626456603
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.154784095510416,
+          "validation_loss": 2.7214694023132324,
+          "gradient_norm_mean_before_clip": 0.07701905583306937
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.14474318093435273,
+          "validation_loss": 2.6773343086242676,
+          "gradient_norm_mean_before_clip": 0.07589394680526056
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.13767249587181363,
+          "validation_loss": 2.7030558586120605,
+          "gradient_norm_mean_before_clip": 0.06415534433974347
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.13306125683286477,
+          "validation_loss": 2.7562155723571777,
+          "gradient_norm_mean_before_clip": 0.058460499173108964
+        }
+      ],
+      "train_seconds": 10.216877400001977,
+      "checkpoint": "lstm-s42.pt",
+      "description": "Learned embeddings + 64-unit causal LSTM.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.020046330988407135,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.02830188679245283,
+          "f1": 0.05504587155963303,
+          "average_precision": 0.8422658196660265,
+          "roc_auc": 0.9859680895358969,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 206,
+            "tp": 6
+          },
+          "windows": 10000,
+          "threshold": 6.87733793258667
+        }
+      }
+    },
+    {
+      "id": "lstm-s73",
+      "name": "LSTM",
+      "architecture": "lstm",
+      "seed": 73,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.660377358490566,
+        "f1": 0.7954545454545454,
+        "average_precision": 0.8546200207742214,
+        "roc_auc": 0.9862567564441633,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 72,
+          "tp": 140
+        },
+        "windows": 10000,
+        "threshold": 7.37581205368042,
+        "ap_block_bootstrap_95": [
+          0.5919325750488756,
+          0.9707105135992005
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1403413173846588,
+          "validation_loss": 3.765076160430908,
+          "gradient_norm_mean_before_clip": 0.46088702063745174
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.28707163031336863,
+          "validation_loss": 3.419548988342285,
+          "gradient_norm_mean_before_clip": 0.1330054417042665
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2051141410773488,
+          "validation_loss": 3.197204828262329,
+          "gradient_norm_mean_before_clip": 0.11507538656218791
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.1718537357916156,
+          "validation_loss": 2.9721174240112305,
+          "gradient_norm_mean_before_clip": 0.09780222738922482
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.15521965144838448,
+          "validation_loss": 2.871306896209717,
+          "gradient_norm_mean_before_clip": 0.0839787712714202
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.14483896631344276,
+          "validation_loss": 2.7535111904144287,
+          "gradient_norm_mean_before_clip": 0.0742158675172799
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.13780699266530488,
+          "validation_loss": 2.7426486015319824,
+          "gradient_norm_mean_before_clip": 0.06657336573575584
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.13296246079658058,
+          "validation_loss": 2.778062343597412,
+          "gradient_norm_mean_before_clip": 0.05894263778668894
+        }
+      ],
+      "train_seconds": 10.144877000013366,
+      "checkpoint": "lstm-s73.pt",
+      "description": "Learned embeddings + 64-unit causal LSTM.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.021517600864171982,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.660377358490566,
+          "f1": 0.7954545454545454,
+          "average_precision": 0.8452647086590854,
+          "roc_auc": 0.9852490727961077,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 72,
+            "tp": 140
+          },
+          "windows": 10000,
+          "threshold": 7.37581205368042
+        }
+      }
+    },
+    {
+      "id": "tcn-s17",
+      "name": "Temporal CNN",
+      "architecture": "tcn",
+      "seed": 17,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.6981132075471698,
+        "f1": 0.8222222222222222,
+        "average_precision": 0.8640850326087712,
+        "roc_auc": 0.9855338843867346,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 64,
+          "tp": 148
+        },
+        "windows": 10000,
+        "threshold": 7.3486008644104,
+        "ap_block_bootstrap_95": [
+          0.5991662580829168,
+          0.9733299758781588
+        ]
+      },
+      "parameters": 50226,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.5390416672552696,
+          "validation_loss": 3.478250741958618,
+          "gradient_norm_mean_before_clip": 0.4944807452635026
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.17800968096231334,
+          "validation_loss": 3.337975025177002,
+          "gradient_norm_mean_before_clip": 0.1997221086016843
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.15313060132160394,
+          "validation_loss": 3.6646320819854736,
+          "gradient_norm_mean_before_clip": 0.1886042453558512
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.14229848930590264,
+          "validation_loss": 3.8621177673339844,
+          "gradient_norm_mean_before_clip": 0.18124655340339096
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.13699409311838062,
+          "validation_loss": 3.959202527999878,
+          "gradient_norm_mean_before_clip": 0.18144938517624223
+        }
+      ],
+      "train_seconds": 11.886800099979155,
+      "checkpoint": "tcn-s17.pt",
+      "description": "Residual causal convolutions with dilation 1, 2, 4.",
+      "model_config": {
+        "architecture": "tcn",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.0300675667822361,
+        "metrics": {
+          "precision": 0.9865771812080537,
+          "recall": 0.6933962264150944,
+          "f1": 0.814404432132964,
+          "average_precision": 0.853858607323928,
+          "roc_auc": 0.9849806463054491,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.2,
+          "normal_false_positive_rate": 0.0002043318348998774,
+          "confusion": {
+            "tn": 9786,
+            "fp": 2,
+            "fn": 65,
+            "tp": 147
+          },
+          "windows": 10000,
+          "threshold": 7.3486008644104
+        }
+      }
+    },
+    {
+      "id": "tcn-s42",
+      "name": "Temporal CNN",
+      "architecture": "tcn",
+      "seed": 42,
+      "metrics": {
+        "precision": 0.8,
+        "recall": 0.018867924528301886,
+        "f1": 0.03686635944700461,
+        "average_precision": 0.773797498746038,
+        "roc_auc": 0.980544621446361,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.1,
+        "normal_false_positive_rate": 0.0001021659174499387,
+        "confusion": {
+          "tn": 9787,
+          "fp": 1,
+          "fn": 208,
+          "tp": 4
+        },
+        "windows": 10000,
+        "threshold": 8.9352445602417,
+        "ap_block_bootstrap_95": [
+          0.49871172171273703,
+          0.9225436442826823
+        ]
+      },
+      "parameters": 50226,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.5247031685677153,
+          "validation_loss": 3.852647066116333,
+          "gradient_norm_mean_before_clip": 0.5085002203852358
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.17528174600567703,
+          "validation_loss": 3.9868578910827637,
+          "gradient_norm_mean_before_clip": 0.1998446138811783
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.15121419132406894,
+          "validation_loss": 4.337498188018799,
+          "gradient_norm_mean_before_clip": 0.18537960988535007
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.14164918738421295,
+          "validation_loss": 4.518233299255371,
+          "gradient_norm_mean_before_clip": 0.18640275687818797
+        }
+      ],
+      "train_seconds": 9.534685399994487,
+      "checkpoint": "tcn-s42.pt",
+      "description": "Residual causal convolutions with dilation 1, 2, 4.",
+      "model_config": {
+        "architecture": "tcn",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.023738501593470573,
+        "metrics": {
+          "precision": 0.8,
+          "recall": 0.018867924528301886,
+          "f1": 0.03686635944700461,
+          "average_precision": 0.7662986610868253,
+          "roc_auc": 0.9825701089512765,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.1,
+          "normal_false_positive_rate": 0.0001021659174499387,
+          "confusion": {
+            "tn": 9787,
+            "fp": 1,
+            "fn": 208,
+            "tp": 4
+          },
+          "windows": 10000,
+          "threshold": 8.9352445602417
+        }
+      }
+    },
+    {
+      "id": "tcn-s73",
+      "name": "Temporal CNN",
+      "architecture": "tcn",
+      "seed": 73,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.660377358490566,
+        "f1": 0.7954545454545454,
+        "average_precision": 0.8551019531842892,
+        "roc_auc": 0.9828684141536421,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 72,
+          "tp": 140
+        },
+        "windows": 10000,
+        "threshold": 8.933894157409668,
+        "ap_block_bootstrap_95": [
+          0.5876996654116503,
+          0.9728776856736016
+        ]
+      },
+      "parameters": 50226,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.5418000353120013,
+          "validation_loss": 3.5557899475097656,
+          "gradient_norm_mean_before_clip": 0.5507604787257355
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.1789821987740597,
+          "validation_loss": 3.4795353412628174,
+          "gradient_norm_mean_before_clip": 0.20911858136385258
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.1527913989761183,
+          "validation_loss": 3.8452796936035156,
+          "gradient_norm_mean_before_clip": 0.1872754916548729
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.14268896743135176,
+          "validation_loss": 3.970703363418579,
+          "gradient_norm_mean_before_clip": 0.18992144845321146
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.13693307006041314,
+          "validation_loss": 4.109251499176025,
+          "gradient_norm_mean_before_clip": 0.18016943020719878
+        }
+      ],
+      "train_seconds": 11.98185489999014,
+      "checkpoint": "tcn-s73.pt",
+      "description": "Residual causal convolutions with dilation 1, 2, 4.",
+      "model_config": {
+        "architecture": "tcn",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.028432440012693405,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.660377358490566,
+          "f1": 0.7954545454545454,
+          "average_precision": 0.8477414006368819,
+          "roc_auc": 0.9826582993422829,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 72,
+            "tp": 140
+          },
+          "windows": 10000,
+          "threshold": 8.933894157409668
+        }
+      }
+    },
+    {
+      "id": "lstm-shuffle-s17",
+      "name": "LSTM \u00b7 shuffled training",
+      "architecture": "lstm",
+      "seed": 17,
+      "metrics": {
+        "precision": 0.96875,
+        "recall": 0.7311320754716981,
+        "f1": 0.8333333333333334,
+        "average_precision": 0.8459054969618334,
+        "roc_auc": 0.9831956342383049,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.5,
+        "normal_false_positive_rate": 0.0005108295872496935,
+        "confusion": {
+          "tn": 9783,
+          "fp": 5,
+          "fn": 57,
+          "tp": 155
+        },
+        "windows": 10000,
+        "threshold": 5.055366039276123,
+        "ap_block_bootstrap_95": [
+          0.5724406141104239,
+          0.9641963295748112
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1556321265116498,
+          "validation_loss": 3.752054214477539,
+          "gradient_norm_mean_before_clip": 0.4382249425414582
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.3322689003414578,
+          "validation_loss": 3.313904047012329,
+          "gradient_norm_mean_before_clip": 0.15488444394628767
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2876099259737589,
+          "validation_loss": 2.9612152576446533,
+          "gradient_norm_mean_before_clip": 0.13536356877483113
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.2660326135925972,
+          "validation_loss": 2.6045868396759033,
+          "gradient_norm_mean_before_clip": 0.11901229459949782
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2513036924889707,
+          "validation_loss": 2.2940807342529297,
+          "gradient_norm_mean_before_clip": 0.11045386673698962
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.24117276057502904,
+          "validation_loss": 2.1049845218658447,
+          "gradient_norm_mean_before_clip": 0.10268130200639577
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.23517759567663657,
+          "validation_loss": 2.05507493019104,
+          "gradient_norm_mean_before_clip": 0.10151265690129407
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.23095055517452256,
+          "validation_loss": 2.0281519889831543,
+          "gradient_norm_mean_before_clip": 0.09664956863287469
+        }
+      ],
+      "train_seconds": 10.303354400006356,
+      "checkpoint": "lstm-shuffle-s17.pt",
+      "description": "Order ablation: permute positions 2\u201320 once per seed, preserving initial context and target counts.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.005230246111750603,
+        "metrics": {
+          "precision": 0.9520958083832335,
+          "recall": 0.75,
+          "f1": 0.8390501319261213,
+          "average_precision": 0.8400888837623494,
+          "roc_auc": 0.9840119977484946,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.8,
+          "normal_false_positive_rate": 0.0008173273395995096,
+          "confusion": {
+            "tn": 9780,
+            "fp": 8,
+            "fn": 53,
+            "tp": 159
+          },
+          "windows": 10000,
+          "threshold": 5.055366039276123
+        }
+      }
+    },
+    {
+      "id": "lstm-shuffle-s42",
+      "name": "LSTM \u00b7 shuffled training",
+      "architecture": "lstm",
+      "seed": 42,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.0047169811320754715,
+        "f1": 0.009389671361502348,
+        "average_precision": 0.8561790764142714,
+        "roc_auc": 0.9836799585167822,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 211,
+          "tp": 1
+        },
+        "windows": 10000,
+        "threshold": 7.778164386749268,
+        "ap_block_bootstrap_95": [
+          0.59194807834386,
+          0.9707437171921742
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1562926025739662,
+          "validation_loss": 3.8726859092712402,
+          "gradient_norm_mean_before_clip": 0.45963983856876134
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.3351798024640253,
+          "validation_loss": 3.4841182231903076,
+          "gradient_norm_mean_before_clip": 0.1571749237326669
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2877740311854036,
+          "validation_loss": 3.2359538078308105,
+          "gradient_norm_mean_before_clip": 0.12514838786192342
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.2669000919760147,
+          "validation_loss": 3.0051355361938477,
+          "gradient_norm_mean_before_clip": 0.1173559462153156
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.25218639280866467,
+          "validation_loss": 2.8174736499786377,
+          "gradient_norm_mean_before_clip": 0.10707683751071004
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.24204214888991432,
+          "validation_loss": 2.7164814472198486,
+          "gradient_norm_mean_before_clip": 0.10084189361774586
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.23594199421477524,
+          "validation_loss": 2.676647663116455,
+          "gradient_norm_mean_before_clip": 0.09525590961877729
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.23003473066876837,
+          "validation_loss": 2.6539175510406494,
+          "gradient_norm_mean_before_clip": 0.08520643318622885
+        }
+      ],
+      "train_seconds": 10.250033899996197,
+      "checkpoint": "lstm-shuffle-s42.pt",
+      "description": "Order ablation: permute positions 2\u201320 once per seed, preserving initial context and target counts.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.004607626236975193,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.0047169811320754715,
+          "f1": 0.009389671361502348,
+          "average_precision": 0.8494220806800297,
+          "roc_auc": 0.9844741539505438,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 211,
+            "tp": 1
+          },
+          "windows": 10000,
+          "threshold": 7.778164386749268
+        }
+      }
+    },
+    {
+      "id": "lstm-shuffle-s73",
+      "name": "LSTM \u00b7 shuffled training",
+      "architecture": "lstm",
+      "seed": 73,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.660377358490566,
+        "f1": 0.7954545454545454,
+        "average_precision": 0.8497106387214147,
+        "roc_auc": 0.9843758433507337,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 72,
+          "tp": 140
+        },
+        "windows": 10000,
+        "threshold": 7.4740309715271,
+        "ap_block_bootstrap_95": [
+          0.5694173551555842,
+          0.9703240369654171
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1413772533549902,
+          "validation_loss": 3.809290885925293,
+          "gradient_norm_mean_before_clip": 0.46189801788456003
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.331866339158942,
+          "validation_loss": 3.4466986656188965,
+          "gradient_norm_mean_before_clip": 0.15818299132753427
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.28689500053769806,
+          "validation_loss": 3.3162927627563477,
+          "gradient_norm_mean_before_clip": 0.1248644756704149
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.26549156326783074,
+          "validation_loss": 3.1141865253448486,
+          "gradient_norm_mean_before_clip": 0.11168712608411278
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2506181319679915,
+          "validation_loss": 2.9025797843933105,
+          "gradient_norm_mean_before_clip": 0.10892390234159752
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.2410843146400479,
+          "validation_loss": 2.811455249786377,
+          "gradient_norm_mean_before_clip": 0.10104808953761214
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.23468464412119436,
+          "validation_loss": 2.7788238525390625,
+          "gradient_norm_mean_before_clip": 0.09599273552147436
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.23012785200522237,
+          "validation_loss": 2.7447845935821533,
+          "gradient_norm_mean_before_clip": 0.093137867250283
+        }
+      ],
+      "train_seconds": 10.26293570001144,
+      "checkpoint": "lstm-shuffle-s73.pt",
+      "description": "Order ablation: permute positions 2\u201320 once per seed, preserving initial context and target counts.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.15
+      },
+      "order_probe": {
+        "mean_score_change": 0.005394637584686279,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.660377358490566,
+          "f1": 0.7954545454545454,
+          "average_precision": 0.8504847112581607,
+          "roc_auc": 0.9850987154081625,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 72,
+            "tp": 140
+          },
+          "windows": 10000,
+          "threshold": 7.4740309715271
+        }
+      }
+    },
+    {
+      "id": "lstm-no-dropout-s17",
+      "name": "LSTM \u00b7 no dropout",
+      "architecture": "lstm",
+      "seed": 17,
+      "metrics": {
+        "precision": 0.9935897435897436,
+        "recall": 0.7311320754716981,
+        "f1": 0.842391304347826,
+        "average_precision": 0.8550036465713673,
+        "roc_auc": 0.9856866513482047,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.1,
+        "normal_false_positive_rate": 0.0001021659174499387,
+        "confusion": {
+          "tn": 9787,
+          "fp": 1,
+          "fn": 57,
+          "tp": 155
+        },
+        "windows": 10000,
+        "threshold": 5.529018878936768,
+        "ap_block_bootstrap_95": [
+          0.5930918694742084,
+          0.9705411379404296
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1188430101821647,
+          "validation_loss": 3.765812397003174,
+          "gradient_norm_mean_before_clip": 0.42508534499457185
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2573446691280168,
+          "validation_loss": 3.350701332092285,
+          "gradient_norm_mean_before_clip": 0.11920836937784308
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.18034295891526725,
+          "validation_loss": 3.032961368560791,
+          "gradient_norm_mean_before_clip": 0.09684200666215219
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.15221844707214888,
+          "validation_loss": 2.6754956245422363,
+          "gradient_norm_mean_before_clip": 0.08503439649939537
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.13820356852293844,
+          "validation_loss": 2.504289388656616,
+          "gradient_norm_mean_before_clip": 0.08909344745301445
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.12782540127134753,
+          "validation_loss": 2.4505438804626465,
+          "gradient_norm_mean_before_clip": 0.07723001361837689
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.1225020651504217,
+          "validation_loss": 2.5039494037628174,
+          "gradient_norm_mean_before_clip": 0.0675801123216958
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.11890614773147065,
+          "validation_loss": 2.5826401710510254,
+          "gradient_norm_mean_before_clip": 0.07297251010182458
+        }
+      ],
+      "train_seconds": 7.2947364000137895,
+      "checkpoint": "lstm-no-dropout-s17.pt",
+      "description": "Regularization ablation: dropout 0 instead of 0.15; all other settings unchanged.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.0
+      },
+      "order_probe": {
+        "mean_score_change": 0.02125289849936962,
+        "metrics": {
+          "precision": 0.9746835443037974,
+          "recall": 0.7264150943396226,
+          "f1": 0.8324324324324325,
+          "average_precision": 0.8330477696114849,
+          "roc_auc": 0.9854312365545798,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.4,
+          "normal_false_positive_rate": 0.0004086636697997548,
+          "confusion": {
+            "tn": 9784,
+            "fp": 4,
+            "fn": 58,
+            "tp": 154
+          },
+          "windows": 10000,
+          "threshold": 5.529018878936768
+        }
+      }
+    },
+    {
+      "id": "lstm-no-dropout-s42",
+      "name": "LSTM \u00b7 no dropout",
+      "architecture": "lstm",
+      "seed": 42,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.02830188679245283,
+        "f1": 0.05504587155963303,
+        "average_precision": 0.8538915364404384,
+        "roc_auc": 0.9863430191763499,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 206,
+          "tp": 6
+        },
+        "windows": 10000,
+        "threshold": 6.471322536468506,
+        "ap_block_bootstrap_95": [
+          0.5954894498840058,
+          0.9704478110395099
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1224929656909437,
+          "validation_loss": 3.882190704345703,
+          "gradient_norm_mean_before_clip": 0.45214443601353066
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2648191614327135,
+          "validation_loss": 3.475700855255127,
+          "gradient_norm_mean_before_clip": 0.11354868368468654
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.18330234820653127,
+          "validation_loss": 3.1560380458831787,
+          "gradient_norm_mean_before_clip": 0.09346788958974288
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.1555011773808631,
+          "validation_loss": 2.852224588394165,
+          "gradient_norm_mean_before_clip": 0.10317195553175161
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.13944483577659533,
+          "validation_loss": 2.722733497619629,
+          "gradient_norm_mean_before_clip": 0.07927828582502167
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.1295107659497433,
+          "validation_loss": 2.717336416244507,
+          "gradient_norm_mean_before_clip": 0.0766607095080782
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.12314260444678496,
+          "validation_loss": 2.7367911338806152,
+          "gradient_norm_mean_before_clip": 0.06590462229411367
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.11899114941171554,
+          "validation_loss": 2.768221855163574,
+          "gradient_norm_mean_before_clip": 0.059755101865551004
+        }
+      ],
+      "train_seconds": 7.315709100017557,
+      "checkpoint": "lstm-no-dropout-s42.pt",
+      "description": "Regularization ablation: dropout 0 instead of 0.15; all other settings unchanged.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.0
+      },
+      "order_probe": {
+        "mean_score_change": 0.020808443427085876,
+        "metrics": {
+          "precision": 0.875,
+          "recall": 0.0330188679245283,
+          "f1": 0.06363636363636363,
+          "average_precision": 0.8158025440261645,
+          "roc_auc": 0.9857599023833573,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.1,
+          "normal_false_positive_rate": 0.0001021659174499387,
+          "confusion": {
+            "tn": 9787,
+            "fp": 1,
+            "fn": 205,
+            "tp": 7
+          },
+          "windows": 10000,
+          "threshold": 6.471322536468506
+        }
+      }
+    },
+    {
+      "id": "lstm-no-dropout-s73",
+      "name": "LSTM \u00b7 no dropout",
+      "architecture": "lstm",
+      "seed": 73,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.660377358490566,
+        "f1": 0.7954545454545454,
+        "average_precision": 0.8525494562412091,
+        "roc_auc": 0.9848442644439475,
+        "prevalence": 0.0212,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 9788,
+          "fp": 0,
+          "fn": 72,
+          "tp": 140
+        },
+        "windows": 10000,
+        "threshold": 7.242241382598877,
+        "ap_block_bootstrap_95": [
+          0.5715424975279164,
+          0.9697857865913375
+        ]
+      },
+      "parameters": 36146,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.1099546036398336,
+          "validation_loss": 3.728895664215088,
+          "gradient_norm_mean_before_clip": 0.4581782695588092
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2589683108014031,
+          "validation_loss": 3.4340548515319824,
+          "gradient_norm_mean_before_clip": 0.12800832147854316
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.18329682856930857,
+          "validation_loss": 3.144307851791382,
+          "gradient_norm_mean_before_clip": 0.1029909664738766
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.15326423881150314,
+          "validation_loss": 2.925344705581665,
+          "gradient_norm_mean_before_clip": 0.09132250836512572
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.13840280307334157,
+          "validation_loss": 2.8383100032806396,
+          "gradient_norm_mean_before_clip": 0.0911927364609191
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.12847907273047834,
+          "validation_loss": 2.7772328853607178,
+          "gradient_norm_mean_before_clip": 0.07072220890927063
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.12263945380306028,
+          "validation_loss": 2.7624521255493164,
+          "gradient_norm_mean_before_clip": 0.06655204890322097
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.11934081490718845,
+          "validation_loss": 2.8604135513305664,
+          "gradient_norm_mean_before_clip": 0.07156256281993759
+        }
+      ],
+      "train_seconds": 7.285473199997796,
+      "checkpoint": "lstm-no-dropout-s73.pt",
+      "description": "Regularization ablation: dropout 0 instead of 0.15; all other settings unchanged.",
+      "model_config": {
+        "architecture": "lstm",
+        "embedding": 32,
+        "hidden": 64,
+        "dropout": 0.0
+      },
+      "order_probe": {
+        "mean_score_change": 0.022230559960007668,
+        "metrics": {
+          "precision": 1.0,
+          "recall": 0.660377358490566,
+          "f1": 0.7954545454545454,
+          "average_precision": 0.8432736303602911,
+          "roc_auc": 0.9845849943326831,
+          "prevalence": 0.0212,
+          "false_alerts_per_1000_windows": 0.0,
+          "normal_false_positive_rate": 0.0,
+          "confusion": {
+            "tn": 9788,
+            "fp": 0,
+            "fn": 72,
+            "tp": 140
+          },
+          "windows": 10000,
+          "threshold": 7.242241382598877
+        }
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.12.10",
+    "torch": "2.14.1+cpu",
+    "numpy": "2.5.4",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "device": "cpu",
+    "threads": 4
+  },
+  "total_seconds": 128.78362440000637,
+  "protocol": "60/20/20 contiguous file-order split; non-overlapping windows; train-only vocabulary; normal-only weight fitting; normal-validation loss selects checkpoints; 99th percentile normal-validation threshold; strict > comparison; untouched test scoring; no point adjustment."
+}

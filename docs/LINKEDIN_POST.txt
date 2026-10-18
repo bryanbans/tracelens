@@ -1,0 +1,17 @@
+Improving recall is easy if you ignore false alarms. I wanted to measure both.
+
+My Deep Learning coursework in my computer science master's program in AI/ML inspired TraceLens: a system-log anomaly detection project built with PyTorch and a local evidence explorer.
+
+I compared LSTMs and temporal CNNs with a word-level CNN ensemble. The key change was representation: learning shared message phrases rather than mapping every unfamiliar log template to the same unknown event.
+
+Then I separated development selection, deployment calibration, and three later audit ranges—and froze the detector before opening the audit predictions.
+
+Across 112,398 later BGL log windows, recall increased from 1.0% to 46.4%, and average precision increased from 0.104 to 0.341 on the same windows. Recall improved in all three audit ranges.
+
+The cost matters: normal false positives rose from 0.02% to 3.77%. The 1% calibration target did not hold over time. On the final confirmation range, the detector reached 74.2% recall and 69.2% precision, with a 2.89% normal false-positive rate.
+
+This is one historical dataset, not a production reliability guarantee. The most useful lesson was seeing how representation, calibration, and temporal drift interact—and making those trade-offs visible instead of hiding them behind a single score.
+
+TraceLens includes reproducible checkpoints, frozen evaluation records, automated tests, and a redesigned signal observatory for inspecting alerts and missed anomalies.
+
+#DeepLearning #PyTorch #MachineLearning #Observability #SoftwareEngineering

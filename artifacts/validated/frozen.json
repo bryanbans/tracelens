@@ -1,0 +1,484 @@
+{
+  "config": {
+    "protocol_version": "tracelens-calibration-v2",
+    "window_size": 20,
+    "development_calibration": [
+      1000000,
+      1500000
+    ],
+    "development_selection": [
+      1500000,
+      2000000
+    ],
+    "deployment_calibration": [
+      2000000,
+      2500000
+    ],
+    "audit_ranges": {
+      "audit_a": [
+        2500000,
+        3250000
+      ],
+      "audit_b": [
+        3250000,
+        4000000
+      ],
+      "confirmation": [
+        4000000,
+        4747963
+      ]
+    },
+    "families": [
+      "lstm",
+      "tcn",
+      "semantic"
+    ],
+    "seeds": [
+      17,
+      42,
+      73
+    ],
+    "aggregation_candidates": [
+      "mean",
+      "top3",
+      "max"
+    ],
+    "threshold_candidates": [
+      "normal_quantile_99",
+      "f2_budget"
+    ],
+    "normal_fpr_budget": 0.01,
+    "selection_objective": "highest development-selection F2 subject to normal FPR <= 1%; ties use AP then lexical candidate ID",
+    "fallback": "if no candidate satisfies selection FPR budget, choose lowest selection normal FPR then highest F2; declare infeasibility",
+    "legacy_comparator": "lstm-s17 with original mean score and original frozen threshold",
+    "bootstrap": {
+      "block_size": 250,
+      "repetitions": 500,
+      "seed": 2026
+    },
+    "disclosure": "Coarse archive-wide label counts were inspected during v1 development. No audit predictions or individual audit labels are used to select v2. Legacy checkpoints stay frozen. Semantic CNNs use content words, supervised window labels on lines 1\u00e2\u20ac\u201c600000, and checkpoint selection on lines 600001\u00e2\u20ac\u201c1000000. This is a prediction-blind temporal audit, not a pristine label-blind external replication. Development initially tried sequence-only candidates; semantic candidates were added before audit predictions were opened."
+  },
+  "selected": {
+    "id": "semantic-max-f2_budget",
+    "family": "semantic",
+    "aggregation": "max",
+    "policy": "f2_budget",
+    "development_threshold": 0.9635299841562905,
+    "selection_metrics": {
+      "precision": 1.0,
+      "recall": 0.11229946524064172,
+      "f1": 0.20192307692307693,
+      "average_precision": 0.473925461067902,
+      "roc_auc": 0.9807207107021484,
+      "prevalence": 0.00748,
+      "false_alerts_per_1000_windows": 0.0,
+      "normal_false_positive_rate": 0.0,
+      "confusion": {
+        "tn": 24813,
+        "fp": 0,
+        "fn": 166,
+        "tp": 21
+      },
+      "windows": 25000,
+      "threshold": 0.9635299841562905
+    }
+  },
+  "selection_budget_feasible": true,
+  "candidates": [
+    {
+      "id": "lstm-mean-normal_quantile_99",
+      "family": "lstm",
+      "aggregation": "mean",
+      "policy": "normal_quantile_99",
+      "development_threshold": 4.656543653262289,
+      "selection_metrics": {
+        "precision": 0.07142857142857142,
+        "recall": 0.058823529411764705,
+        "f1": 0.06451612903225806,
+        "average_precision": 0.14279496217247176,
+        "roc_auc": 0.9648806225648063,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 5.720000000000001,
+        "normal_false_positive_rate": 0.00576310804820054,
+        "confusion": {
+          "tn": 24670,
+          "fp": 143,
+          "fn": 176,
+          "tp": 11
+        },
+        "windows": 25000,
+        "threshold": 4.656543653262289
+      }
+    },
+    {
+      "id": "lstm-mean-f2_budget",
+      "family": "lstm",
+      "aggregation": "mean",
+      "policy": "f2_budget",
+      "development_threshold": 4.659389235471424,
+      "selection_metrics": {
+        "precision": 0.0718954248366013,
+        "recall": 0.058823529411764705,
+        "f1": 0.06470588235294118,
+        "average_precision": 0.14279496217247176,
+        "roc_auc": 0.9648806225648063,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 5.68,
+        "normal_false_positive_rate": 0.005722806593318018,
+        "confusion": {
+          "tn": 24671,
+          "fp": 142,
+          "fn": 176,
+          "tp": 11
+        },
+        "windows": 25000,
+        "threshold": 4.659389235471424
+      }
+    },
+    {
+      "id": "lstm-top3-normal_quantile_99",
+      "family": "lstm",
+      "aggregation": "top3",
+      "policy": "normal_quantile_99",
+      "development_threshold": 9.273141225179037,
+      "selection_metrics": {
+        "precision": 0.011695906432748537,
+        "recall": 0.0106951871657754,
+        "f1": 0.0111731843575419,
+        "average_precision": 0.0877972745753068,
+        "roc_auc": 0.9589918688043249,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.760000000000001,
+        "normal_false_positive_rate": 0.006810945875146092,
+        "confusion": {
+          "tn": 24644,
+          "fp": 169,
+          "fn": 185,
+          "tp": 2
+        },
+        "windows": 25000,
+        "threshold": 9.273141225179037
+      }
+    },
+    {
+      "id": "lstm-top3-f2_budget",
+      "family": "lstm",
+      "aggregation": "top3",
+      "policy": "f2_budget",
+      "development_threshold": 9.38724931081136,
+      "selection_metrics": {
+        "precision": 0.006024096385542169,
+        "recall": 0.0053475935828877,
+        "f1": 0.0056657223796034,
+        "average_precision": 0.0877972745753068,
+        "roc_auc": 0.9589918688043249,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.6,
+        "normal_false_positive_rate": 0.006649740055616008,
+        "confusion": {
+          "tn": 24648,
+          "fp": 165,
+          "fn": 186,
+          "tp": 1
+        },
+        "windows": 25000,
+        "threshold": 9.38724931081136
+      }
+    },
+    {
+      "id": "lstm-max-normal_quantile_99",
+      "family": "lstm",
+      "aggregation": "max",
+      "policy": "normal_quantile_99",
+      "development_threshold": 10.92257308959961,
+      "selection_metrics": {
+        "precision": 0.011976047904191617,
+        "recall": 0.0106951871657754,
+        "f1": 0.011299435028248588,
+        "average_precision": 0.08959935513344697,
+        "roc_auc": 0.9573707589453606,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.6,
+        "normal_false_positive_rate": 0.006649740055616008,
+        "confusion": {
+          "tn": 24648,
+          "fp": 165,
+          "fn": 185,
+          "tp": 2
+        },
+        "windows": 25000,
+        "threshold": 10.92257308959961
+      }
+    },
+    {
+      "id": "lstm-max-f2_budget",
+      "family": "lstm",
+      "aggregation": "max",
+      "policy": "f2_budget",
+      "development_threshold": 12.203758239746092,
+      "selection_metrics": {
+        "precision": 0.031746031746031744,
+        "recall": 0.0106951871657754,
+        "f1": 0.016,
+        "average_precision": 0.08959935513344697,
+        "roc_auc": 0.9573707589453606,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 2.44,
+        "normal_false_positive_rate": 0.0024583887478337968,
+        "confusion": {
+          "tn": 24752,
+          "fp": 61,
+          "fn": 185,
+          "tp": 2
+        },
+        "windows": 25000,
+        "threshold": 12.203758239746092
+      }
+    },
+    {
+      "id": "tcn-mean-normal_quantile_99",
+      "family": "tcn",
+      "aggregation": "mean",
+      "policy": "normal_quantile_99",
+      "development_threshold": 5.101243502215335,
+      "selection_metrics": {
+        "precision": 0.06707317073170732,
+        "recall": 0.058823529411764705,
+        "f1": 0.06267806267806268,
+        "average_precision": 0.13032889348619417,
+        "roc_auc": 0.9642560577720278,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.119999999999999,
+        "normal_false_positive_rate": 0.006166122597025753,
+        "confusion": {
+          "tn": 24660,
+          "fp": 153,
+          "fn": 176,
+          "tp": 11
+        },
+        "windows": 25000,
+        "threshold": 5.101243502215335
+      }
+    },
+    {
+      "id": "tcn-mean-f2_budget",
+      "family": "tcn",
+      "aggregation": "mean",
+      "policy": "f2_budget",
+      "development_threshold": 5.800909048632571,
+      "selection_metrics": {
+        "precision": 0.1702127659574468,
+        "recall": 0.0427807486631016,
+        "f1": 0.06837606837606838,
+        "average_precision": 0.13032889348619417,
+        "roc_auc": 0.9642560577720278,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 1.56,
+        "normal_false_positive_rate": 0.0015717567404183292,
+        "confusion": {
+          "tn": 24774,
+          "fp": 39,
+          "fn": 179,
+          "tp": 8
+        },
+        "windows": 25000,
+        "threshold": 5.800909048632571
+      }
+    },
+    {
+      "id": "tcn-top3-normal_quantile_99",
+      "family": "tcn",
+      "aggregation": "top3",
+      "policy": "normal_quantile_99",
+      "development_threshold": 9.639911651611328,
+      "selection_metrics": {
+        "precision": 0.04945054945054945,
+        "recall": 0.0481283422459893,
+        "f1": 0.04878048780487805,
+        "average_precision": 0.08623296026844958,
+        "roc_auc": 0.9574912322784052,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.92,
+        "normal_false_positive_rate": 0.006972151694676178,
+        "confusion": {
+          "tn": 24640,
+          "fp": 173,
+          "fn": 178,
+          "tp": 9
+        },
+        "windows": 25000,
+        "threshold": 9.639911651611328
+      }
+    },
+    {
+      "id": "tcn-top3-f2_budget",
+      "family": "tcn",
+      "aggregation": "top3",
+      "policy": "f2_budget",
+      "development_threshold": 10.621290206909178,
+      "selection_metrics": {
+        "precision": 0.05555555555555555,
+        "recall": 0.0427807486631016,
+        "f1": 0.04833836858006042,
+        "average_precision": 0.08623296026844958,
+        "roc_auc": 0.9574912322784052,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 5.44,
+        "normal_false_positive_rate": 0.005480997864022891,
+        "confusion": {
+          "tn": 24677,
+          "fp": 136,
+          "fn": 179,
+          "tp": 8
+        },
+        "windows": 25000,
+        "threshold": 10.621290206909178
+      }
+    },
+    {
+      "id": "tcn-max-normal_quantile_99",
+      "family": "tcn",
+      "aggregation": "max",
+      "policy": "normal_quantile_99",
+      "development_threshold": 11.789443016052246,
+      "selection_metrics": {
+        "precision": 0.01764705882352941,
+        "recall": 0.016042780748663103,
+        "f1": 0.01680672268907563,
+        "average_precision": 0.09122814728002523,
+        "roc_auc": 0.9562082667120112,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.680000000000001,
+        "normal_false_positive_rate": 0.0067303429653810505,
+        "confusion": {
+          "tn": 24646,
+          "fp": 167,
+          "fn": 184,
+          "tp": 3
+        },
+        "windows": 25000,
+        "threshold": 11.789443016052246
+      }
+    },
+    {
+      "id": "tcn-max-f2_budget",
+      "family": "tcn",
+      "aggregation": "max",
+      "policy": "f2_budget",
+      "development_threshold": 12.002380371093748,
+      "selection_metrics": {
+        "precision": 0.012048192771084338,
+        "recall": 0.0106951871657754,
+        "f1": 0.0113314447592068,
+        "average_precision": 0.09122814728002523,
+        "roc_auc": 0.9562082667120112,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 6.56,
+        "normal_false_positive_rate": 0.006609438600733487,
+        "confusion": {
+          "tn": 24649,
+          "fp": 164,
+          "fn": 185,
+          "tp": 2
+        },
+        "windows": 25000,
+        "threshold": 12.002380371093748
+      }
+    },
+    {
+      "id": "semantic-max-normal_quantile_99",
+      "family": "semantic",
+      "aggregation": "max",
+      "policy": "normal_quantile_99",
+      "development_threshold": 0.7265981435775757,
+      "selection_metrics": {
+        "precision": 1.0,
+        "recall": 0.11229946524064172,
+        "f1": 0.20192307692307693,
+        "average_precision": 0.473925461067902,
+        "roc_auc": 0.9807207107021484,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 24813,
+          "fp": 0,
+          "fn": 166,
+          "tp": 21
+        },
+        "windows": 25000,
+        "threshold": 0.7265981435775757
+      }
+    },
+    {
+      "id": "semantic-max-f2_budget",
+      "family": "semantic",
+      "aggregation": "max",
+      "policy": "f2_budget",
+      "development_threshold": 0.9635299841562905,
+      "selection_metrics": {
+        "precision": 1.0,
+        "recall": 0.11229946524064172,
+        "f1": 0.20192307692307693,
+        "average_precision": 0.473925461067902,
+        "roc_auc": 0.9807207107021484,
+        "prevalence": 0.00748,
+        "false_alerts_per_1000_windows": 0.0,
+        "normal_false_positive_rate": 0.0,
+        "confusion": {
+          "tn": 24813,
+          "fp": 0,
+          "fn": 166,
+          "tp": 21
+        },
+        "windows": 25000,
+        "threshold": 0.9635299841562905
+      }
+    }
+  ],
+  "deployment_threshold": 0.23488032918733853,
+  "recalibrated_legacy_threshold": 2.2507965282389986,
+  "legacy_threshold": 6.07032585144043,
+  "checkpoint_files": [
+    "semantic-s17.pt",
+    "semantic-s42.pt",
+    "semantic-s73.pt"
+  ],
+  "legacy_checkpoint": "lstm-s17.pt",
+  "checkpoint_sha256": {
+    "semantic-s73.pt": "e683ac78ca98602871cd76c3234016b519970e762a25daee81c996663358f8ad",
+    "semantic-s42.pt": "3b29bdd6378d30852eff21deaf338de5e6b41a2152ac173469661075f583a226",
+    "lstm-s17.pt": "2ba358197b69ca32465d34da3f902f60535cb6044026dc1439499b36ca385e0e",
+    "semantic-s17.pt": "8f0c84f8b972009ada6a628dc2bc0bd4ca758850894eccf6f7dbabb693b550c1"
+  },
+  "archive_sha256": "d67fd82a711aea0157a9b83175892c6ee60e384a2ddf5bc51f39118453816da8",
+  "vocab_sha256": "3cc148fb07ab81bf5f8a5f4f0069843ac497cbc422d168f52372e13bdebbe66f",
+  "code_sha256": {
+    "audit.py": "c039773e15355faa9767e85fb5acb5ab80436596643d231cd23745df94e93a76",
+    "calibration.py": "84db1d8b7a89a4251039d210c9969ee812d34528a694420ab3c62a86edbd63bd",
+    "models.py": "03e971b4980f9cccc497a823808fe1865156488bafbcb37e66fff870a9eb1eb3",
+    "semantic.py": "be071fef9247d5cc7dff1379c849b70c99aa6db743d3a76ab7d4a21ce8af7eeb",
+    "data.py": "3147c3b15088187ef32547ae29dc0cfddfbbec09ec0be796ffe55d60a60a5e78",
+    "evaluation.py": "fb91bfdcda1803c135d3ec4237b6ec47dd798632fc63d6ed9a4d79034a57475e",
+    "train.py": "e3aa565895b5985c8c3564df3c9a67dccdd8a4130eb749f64dd7c0e1013a0e7b"
+  },
+  "frozen_at": "2026-10-18T16:22:02.977876+00:00",
+  "calibration_metrics": {
+    "precision": 0.6288659793814433,
+    "recall": 0.3065326633165829,
+    "f1": 0.41216216216216217,
+    "average_precision": 0.3103777632084817,
+    "roc_auc": 0.8750013929978103,
+    "prevalence": 0.00796,
+    "false_alerts_per_1000_windows": 1.4400000000000002,
+    "normal_false_positive_rate": 0.0014515543728075482,
+    "confusion": {
+      "tn": 24765,
+      "fp": 36,
+      "fn": 138,
+      "tp": 61
+    },
+    "windows": 25000,
+    "threshold": 0.23488032918733853
+  }
+}

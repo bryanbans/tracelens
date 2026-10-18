@@ -1,0 +1,171 @@
+{
+  "purpose": "Post-hoc sensitivity of conditional intervals, not new validation or model selection.",
+  "report_sha256": "32db9f032e2bdd7576340d3dd61f0cf2805d6c4712ef8c8286f1f87389f23e48",
+  "freeze_sha256": "4728106480449bf6e31b737fa7983f0a85ab3b4c364cd85b35910d9285623fc2",
+  "seed": 2026,
+  "repetitions": 500,
+  "ranges": {
+    "audit_a": {
+      "100": {
+        "recall_difference_95": [
+          0.22649074970941496,
+          0.5531609768703293
+        ],
+        "normal_fpr_difference_95": [
+          0.008058208713854865,
+          0.021210894099681455
+        ],
+        "block_size": 100,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "250": {
+        "recall_difference_95": [
+          0.17470836443178314,
+          0.6273721642426636
+        ],
+        "normal_fpr_difference_95": [
+          0.007010738211108462,
+          0.022341737714273037
+        ],
+        "block_size": 250,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "1000": {
+        "recall_difference_95": [
+          0.13940441440057355,
+          0.7075130086647513
+        ],
+        "normal_fpr_difference_95": [
+          0.005688054402203506,
+          0.024336173596647435
+        ],
+        "block_size": 1000,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "2500": {
+        "recall_difference_95": [
+          0.14363213811420983,
+          0.6353810663021189
+        ],
+        "normal_fpr_difference_95": [
+          0.005673449693381195,
+          0.024908243056184227
+        ],
+        "block_size": 2500,
+        "repetitions": 500,
+        "valid_resamples": 500
+      }
+    },
+    "audit_b": {
+      "100": {
+        "recall_difference_95": [
+          0.11612912166791275,
+          0.2541444252136393
+        ],
+        "normal_fpr_difference_95": [
+          0.05497530821637718,
+          0.08832656908776135
+        ],
+        "block_size": 100,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "250": {
+        "recall_difference_95": [
+          0.1136986819646438,
+          0.2713124663165347
+        ],
+        "normal_fpr_difference_95": [
+          0.050085526779147856,
+          0.09247388119109194
+        ],
+        "block_size": 250,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "1000": {
+        "recall_difference_95": [
+          0.09905902593632418,
+          0.31268517082944475
+        ],
+        "normal_fpr_difference_95": [
+          0.049033777596217805,
+          0.09290441937294362
+        ],
+        "block_size": 1000,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "2500": {
+        "recall_difference_95": [
+          0.1069509435187028,
+          0.34539987138361544
+        ],
+        "normal_fpr_difference_95": [
+          0.048527733095551216,
+          0.09411862763267262
+        ],
+        "block_size": 2500,
+        "repetitions": 500,
+        "valid_resamples": 500
+      }
+    },
+    "confirmation": {
+      "100": {
+        "recall_difference_95": [
+          0.6377191518046997,
+          0.8503674183514774
+        ],
+        "normal_fpr_difference_95": [
+          0.019929170564584868,
+          0.03678871570895919
+        ],
+        "block_size": 100,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "250": {
+        "recall_difference_95": [
+          0.602935903231415,
+          0.8676713848824534
+        ],
+        "normal_fpr_difference_95": [
+          0.02026133370985711,
+          0.03540957866559307
+        ],
+        "block_size": 250,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "1000": {
+        "recall_difference_95": [
+          0.5460857130745899,
+          0.8864599243201656
+        ],
+        "normal_fpr_difference_95": [
+          0.014749173892577405,
+          0.04118196070357804
+        ],
+        "block_size": 1000,
+        "repetitions": 500,
+        "valid_resamples": 500
+      },
+      "2500": {
+        "recall_difference_95": [
+          0.45672643588636513,
+          0.9244846305369621
+        ],
+        "normal_fpr_difference_95": [
+          0.007113687121304275,
+          0.04840327431831715
+        ],
+        "block_size": 2500,
+        "repetitions": 500,
+        "valid_resamples": 500
+      }
+    }
+  }
+}

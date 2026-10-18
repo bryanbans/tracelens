@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+data/
+artifacts/runs/
+.env
+*.zip
+
+# Historical social-media proof is local working material.
+docs/images/linkedin-published.jpg

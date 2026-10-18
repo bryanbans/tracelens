@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0c1119" />
+    <meta
+      name="description"
+      content="TraceLens: a deep learning observatory for system logs, calibrated and audited across time."
+    />
+    <title>TraceLens — Signal observatory</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23ff8255'/%3E%3Cpath d='M10 13h5v14h-5M30 13h-5v14h5' fill='none' stroke='%230c1119' stroke-width='3'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/v2.css" />
+    <script src="/static/v2.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <a href="#overview" class="wordmark"
+        ><span class="brand-icon" aria-hidden="true">[·]</span>TraceLens<span
+          class="edition"
+          >/ 02</span
+        ></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#overview" data-page="overview">Observe</a
+        ><a href="#validation" data-page="validation">Validate</a
+        ><a href="#replay" data-page="replay">Replay</a
+        ><a href="#protocol" data-page="protocol">Protocol</a>
+      </nav>
+      <span class="local"><i></i> LOCAL INFERENCE</span>
+    </header>
+    <main id="content">
+      <div id="loading" class="loading">
+        INITIALIZING OBSERVATORY <span>···</span>
+      </div>
+      <div id="error" class="error hidden" role="alert"></div>
+      <section class="page hidden" id="page-overview" aria-labelledby="title">
+        <div class="hero">
+          <div>
+            <div class="kicker">
+              <span class="orange-dot"></span> DEEP LEARNING / SYSTEM
+              RELIABILITY
+            </div>
+            <h1 id="title">Read between<br />the <em>log lines.</em></h1>
+            <p class="intro">
+              A signal observatory for abnormal system behavior.<br />Follow a
+              model decision all the way to the evidence.
+            </p>
+          </div>
+          <div class="hero-result">
+            <span class="micro">RECALL / FROZEN AUDIT</span>
+            <div class="recall-number" id="hero-recall">—</div>
+            <div id="hero-comparison" class="result-comparison"></div>
+            <div class="result-mini">
+              <div>
+                <span>PRECISION</span><strong id="hero-precision">—</strong>
+              </div>
+              <div>
+                <span>NORMAL FALSE POSITIVES</span
+                ><strong id="hero-fpr">—</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      <div class="drift-warning" id="drift-warning" role="status"></div>
+      <div class="instrument-bar">
+          <div>
+            <span class="instrument-label">01 / SIGNAL MONITOR</span
+            ><span class="dataset">BLUE GENE/L <i>●</i> REAL SYSTEM LOGS</span>
+          </div>
+          <button class="quiet" id="export">↓ Experiment report</button>
+        </div>
+        <section class="instrument" aria-labelledby="signal-title">
+          <div class="instrument-top">
+            <div>
+              <h2 id="signal-title">The stream, under observation.</h2>
+              <p id="signal-summary">Loading frozen model decisions…</p>
+            </div>
+            <div class="instrument-controls">
+              <label class="sr" for="audit-range">Audit range</label
+              ><select id="audit-range">
+                <option value="all">All audit ranges</option>
+                <option value="audit_a">Audit A</option>
+                <option value="audit_b">Audit B</option>
+                <option value="confirmation">Confirmation</option>
+              </select>
+              <div
+                class="model-switch"
+                role="group"
+                aria-label="Active detector"
+              >
+                <button
+                  data-model="calibrated"
+                  class="active"
+                  aria-pressed="true"
+                >
+                  Validated</button
+                ><button data-model="recalibrated" aria-pressed="false">
+                  Recalibrated</button
+                ><button data-model="legacy" aria-pressed="false">
+                  Original
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-key">
+            <span><i class="line-key"></i>MODEL SCORE</span
+            ><span><i class="line-key dashed"></i>FROZEN THRESHOLD</span
+            ><span><i class="band-key"></i>LABELED ANOMALY</span>
+          </div>
+          <div id="signal" class="signal"></div>
+          <div class="instrument-foot">
+            <span>FILE ORDER →<b id="source-range"></b></span
+            ><span id="threshold-label"></span>
+          </div>
+        </section>
+        <div class="monitor-notes">
+          <span
+            ><i class="cyan-dot"></i>Frozen threshold · exploratory retuning
+            disabled</span
+          ><span
+            >Labels provide evaluation evidence; they never enter inference
+            features.</span
+          >
+        </div>
+        <section class="evidence" aria-labelledby="evidence-title">
+          <div class="evidence-heading">
+            <div class="section-caption">02 / DECISION FORENSICS</div>
+            <h2 id="evidence-title">
+              Every alert has a story.<br /><span>Inspect the sequence.</span>
+            </h2>
+            <div class="evidence-tools">
+              <label class="sr" for="filter">Window filter</label
+              ><select id="filter">
+                <option value="alerts">Flagged windows</option>
+                <option value="missed">Missed anomalies</option>
+                <option value="false">False positives</option>
+                <option value="all">All windows</option></select
+              ><label class="sr" for="search">Search event content</label
+              ><input
+                type="search"
+                id="search"
+                placeholder="Find an event or source line…"
+              />
+            </div>
+          </div>
+          <div class="evidence-grid">
+            <aside class="incident-rail">
+              <div class="rail-label">
+                <span>WINDOWS</span><span id="count" aria-live="polite"></span>
+              </div>
+              <div id="incidents"></div>
+              <div class="pagination">
+                <button id="previous" aria-label="Previous page">←</button
+                ><span id="page-count"></span
+                ><button id="next" aria-label="Next page">→</button>
+              </div>
+            </aside>
+            <div class="inspector" id="inspector">
+              <div class="empty">
+                <span>↖</span>
+                <h3>Choose a window.</h3>
+                <p>
+                  Inspect event content, model activations,<br />and the
+                  independent dataset labels.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="finding" id="finding"></div>
+      </section>
+      <section
+        class="page hidden"
+        id="page-validation"
+        aria-labelledby="validation-title"
+      >
+        <div class="subhero">
+          <div class="kicker">PERFORMANCE / WITH RECEIPTS</div>
+          <h1 id="validation-title">Earn the<br /><em>improvement.</em></h1>
+          <p class="intro">
+            Same time ranges. Frozen decisions. Explicit trade-offs.
+          </p>
+        </div>
+        <div id="validation-content"></div>
+      </section>
+      <section
+        class="page hidden"
+        id="page-replay"
+        aria-labelledby="replay-title"
+      >
+        <div class="subhero">
+          <div class="kicker">LOCAL CHECKPOINT / LIVE INFERENCE</div>
+          <h1 id="replay-title">Replay<br /><em>your signal.</em></h1>
+          <p class="intro">
+            Run the real model on message content. Your input stays on this
+            local server.
+          </p>
+        </div>
+        <div class="replay-layout">
+          <section class="editor">
+            <div class="editor-toolbar">
+              <span><i></i><i></i><i></i></span><span>sequence.log</span
+              ><button id="sample" class="quiet">Load audit example ↗</button>
+            </div>
+            <label class="sr" for="log-input">Log messages</label
+            ><textarea
+              id="log-input"
+              placeholder="One event per line. At least 20 nonempty messages."
+              spellcheck="false"
+            ></textarea>
+            <div class="editor-footer">
+              <label class="upload"
+                >↑ Open log file<input
+                  type="file"
+                  id="file"
+                  accept=".log,.txt,text/plain" /></label
+              ><span id="line-count">0 lines</span
+              ><button id="analyze" class="orange-button">
+                Analyze sequence →
+              </button>
+            </div>
+            <div id="analysis-status" role="status" aria-live="polite"></div>
+          </section>
+          <aside class="replay-note">
+            <span class="section-caption">KNOW YOUR INSTRUMENT</span>
+            <h2>Patterns,<br />not prophecies.</h2>
+            <p>
+              The detector recognizes message content learned from BGL logs. An
+              alert indicates a model match to abnormal behavior in that domain.
+            </p>
+            <p>
+              Activations are not calibrated probabilities of an outage.
+              Validate on your own system before relying on alerts.
+            </p>
+            <label for="replay-model">Detector</label
+            ><select id="replay-model">
+              <option value="calibrated">Validated ensemble</option>
+              <option value="recalibrated">Recalibration only</option>
+              <option value="legacy">Original LSTM</option>
+            </select>
+          </aside>
+        </div>
+        <div id="analysis-results"></div>
+      </section>
+      <section
+        class="page hidden"
+        id="page-protocol"
+        aria-labelledby="protocol-title"
+      >
+        <div class="subhero">
+          <div class="kicker">RESEARCH RECORD / D802</div>
+          <h1 id="protocol-title">Nothing behind<br /><em>the curtain.</em></h1>
+          <p class="intro">
+            Data boundaries, modeling choices, and claims you can inspect.
+          </p>
+        </div>
+        <div id="protocol-content"></div>
+      </section>
+      <footer>
+        <div class="footer-brand">[·] TraceLens</div>
+        <span>DEEP LEARNING OBSERVATORY / D802</span
+        ><a href="/api/docs" target="_blank" rel="noopener">API reference ↗</a>
+      </footer>
+    </main>
+    <div id="toast" class="toast hidden" role="status"></div>
+  </body>
+</html>

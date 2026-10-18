@@ -1,0 +1,24 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "baseline.json": "ac2e0199d2556ee92d44b7f5e26a6da6cac092f763390245f83518007ed45f90",
+    "calibration.json": "d35289e38ddadf364c7b881a243c80f6a2cc8abe3581f7a25fdaae9923f99a49",
+    "frozen.json": "4728106480449bf6e31b737fa7983f0a85ab3b4c364cd85b35910d9285623fc2",
+    "frozen.sha256": "275cbb3d99521d381e58275c158c6770ab8008ff5aca8cc16539848da2171eb7",
+    "frozen_sources/audit.py": "c039773e15355faa9767e85fb5acb5ab80436596643d231cd23745df94e93a76",
+    "frozen_sources/calibration.py": "84db1d8b7a89a4251039d210c9969ee812d34528a694420ab3c62a86edbd63bd",
+    "frozen_sources/data.py": "3147c3b15088187ef32547ae29dc0cfddfbbec09ec0be796ffe55d60a60a5e78",
+    "frozen_sources/evaluation.py": "fb91bfdcda1803c135d3ec4237b6ec47dd798632fc63d6ed9a4d79034a57475e",
+    "frozen_sources/models.py": "03e971b4980f9cccc497a823808fe1865156488bafbcb37e66fff870a9eb1eb3",
+    "frozen_sources/semantic.py": "be071fef9247d5cc7dff1379c849b70c99aa6db743d3a76ab7d4a21ce8af7eeb",
+    "frozen_sources/train.py": "e3aa565895b5985c8c3564df3c9a67dccdd8a4130eb749f64dd7c0e1013a0e7b",
+    "lstm-s17.pt": "2ba358197b69ca32465d34da3f902f60535cb6044026dc1439499b36ca385e0e",
+    "report.json": "32db9f032e2bdd7576340d3dd61f0cf2805d6c4712ef8c8286f1f87389f23e48",
+    "semantic-s17.pt": "8f0c84f8b972009ada6a628dc2bc0bd4ca758850894eccf6f7dbabb693b550c1",
+    "semantic-s42.pt": "3b29bdd6378d30852eff21deaf338de5e6b41a2152ac173469661075f583a226",
+    "semantic-s73.pt": "e683ac78ca98602871cd76c3234016b519970e762a25daee81c996663358f8ad",
+    "traces.json.gz": "8d729e2e834589a8ee3ec300d287444a6fc44e699fee76e1206442b88f907b5f",
+    "vocab.json": "3cc148fb07ab81bf5f8a5f4f0069843ac497cbc422d168f52372e13bdebbe66f",
+    "word_vocab.json": "0cd5ffc4e57c265570aedd151ba21698485693722e2708fec95480eafaf45230"
+  }
+}

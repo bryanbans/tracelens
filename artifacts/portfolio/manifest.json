@@ -1,0 +1,22 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "baseline.json": "ac2e0199d2556ee92d44b7f5e26a6da6cac092f763390245f83518007ed45f90",
+    "calibration.json": "4ac879f33dcfb1e08478218163d995257b8c16521f21e8f062d7f922d0b8748e",
+    "lstm-no-dropout-s17.pt": "4f262aa7687ac94f8370827d15b58f1112c7d5804e62bb738d983d050aa6b5a5",
+    "lstm-no-dropout-s42.pt": "8fd1c298f23a788d6bc2642cb417a431c9573a3c92818af79ad4ef9177614e94",
+    "lstm-no-dropout-s73.pt": "fa9e914cb645af9b1c193be06d20e2665df65a8a250fa598a99031c657c70c68",
+    "lstm-s17.pt": "2ba358197b69ca32465d34da3f902f60535cb6044026dc1439499b36ca385e0e",
+    "lstm-s42.pt": "478a0dfe7097efbf61d339c13042aab350a55190ccdc94c78f3ba8b2d1b81141",
+    "lstm-s73.pt": "69494b67f80c34e1cc9a6557ff75ac0382dc75e69d990312410accdb88c554fb",
+    "lstm-shuffle-s17.pt": "b77dbd3aa9c1ee3147e0b78e5881f49449863c5b2c4e0e48d599a8d9b4da5f63",
+    "lstm-shuffle-s42.pt": "3e2e032ec1e6a2ff1a57ecfc410523e15f2410ae4d2121bf4b7ee524bf981bea",
+    "lstm-shuffle-s73.pt": "407751bb825f28077f23afb759d253f55d6f63685129b569b198b34b3c0b04c0",
+    "report.json": "3fad8dcb786e4bd107bb6b736fc375f0322222c561ee733fc35c5ab5aeaa0d12",
+    "tcn-s17.pt": "db1c0ae1cb168e6f00811ae60a88eaccb958b1c9112b7b16f87ea81b4504538d",
+    "tcn-s42.pt": "0039cf335da59e585c66d68e61059fcc1e71088587e8e2248144ce0793deb5df",
+    "tcn-s73.pt": "48348ec7320295c1718ce5222c43a98e31e02b4fbcd0f250098a02ee944879aa",
+    "traces.json": "b5f65b3411a7ffa199c9e668f7dc1ebbebe5ae5441bad5754ac6249c1f112c99",
+    "vocab.json": "3cc148fb07ab81bf5f8a5f4f0069843ac497cbc422d168f52372e13bdebbe66f"
+  }
+}

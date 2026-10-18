@@ -1,0 +1,12 @@
+{
+  "platform": "LinkedIn",
+  "status": "deleted_by_user",
+  "verified_date": "2026-10-18",
+  "verification": "LinkedIn success notification and live published post page",
+  "text_file": "LINKEDIN_POST.txt",
+  "image_file": "images/observatory-v2.jpg",
+  "proof_image": "images/linkedin-published.jpg",
+  "publication_on_hold": true,
+  "status_source": "User reported deletion and requested further refinement on 2026-10-18",
+  "historical_url": "https://www.linkedin.com/feed/update/urn:li:activity:7517626062017740801/"
+}
