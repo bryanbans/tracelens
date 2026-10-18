@@ -16,3 +16,7 @@ The runner emits a Starlette TestClient/httpx deprecation warning; tests pass. L
 Audits were opened once after freezing. They are now inspected data and cannot be reused as untouched holdouts for further optimization. The earlier LinkedIn post was deleted by the user. Publication is on hold; GitHub is the primary project record. See REVIEW.md for this iteration.
 
 Release review also found that the first semantic freeze omitted an independent word-vocabulary hash. The word mapping matches the retained training copy byte-for-byte. The limitation is disclosed in CALIBRATION_AUDIT.md; the original freeze and exact scoring-source snapshots are preserved. Future freezes bind this mapping explicitly. No audit was reopened.
+
+## Application language review
+
+The current interface explains its purpose, window labels, metric denominators, dynamic detection/miss/false-alarm counts, chart aggregation, model comparisons, and sample-scoring limits in plain language. Navigation is Explore logs / Compare models / Try a sample / Method. Technical scoring rules, temporal boundaries, bootstrap assumptions, supervision differences, and the word-vocabulary freeze omission remain accessible. All 40 tests pass; the detector and saved evaluation artifacts are unchanged. Reviewed desktop and 390px phone layouts, switched detectors and ranges, inspected false positives and misses, and scored both a bundled example and unsupported input.

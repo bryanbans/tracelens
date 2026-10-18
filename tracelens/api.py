@@ -215,7 +215,7 @@ def create_app(artifacts: Path) -> FastAPI:
                 "unknown_fraction": float((x == 0).mean()),
                 "legacy_template_unknown_fraction": float((x == 0).mean()),
                 "ignored_blank_lines": len(payload.text.splitlines()) - len(raw_lines),
-                "note": "Research replay only: the domain is unverified. Word coverage does not establish in-domain validity. Raw scores remain visible for diagnostics; unscorable windows receive no alert decision. Unknown-template fraction refers only to the legacy event vocabulary. Ground truth is unavailable."}
+                "note": "This sample has no verified labels, so accuracy cannot be measured here. These models were evaluated on BGL logs; vocabulary coverage does not prove that your input is comparable. Unsupported windows receive no decision. Their raw scores are shown only for debugging. The unknown-template fraction describes the LSTM event vocabulary, not the CNN word vocabulary."}
 
     web = Path(__file__).parent / "web"
     @app.get("/")

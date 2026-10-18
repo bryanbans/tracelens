@@ -1420,3 +1420,23 @@ tr.emphasis td {
 }
 
 .replay-disclosure{color:var(--muted,#aab5c4);font-size:.88rem;line-height:1.7;padding:16px 20px;max-width:100%;overflow-wrap:anywhere;border-left:2px solid #ff956e;background:#151d28}
+
+.reading-guide { border-top: 1px solid var(--line); padding: 22px 0 28px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+#outcome-summary { color: var(--text); font-size: 15px; }
+.metric-guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin: 20px 0; }
+.metric-guide dt { color: var(--cyan); font-weight: 500; margin-bottom: 4px; }
+.metric-guide dd { margin: 0; }
+.usage-note { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 14px 0; max-width: 1000px; }
+.metric-definitions { margin-bottom: 40px; }
+.prose details { margin: 20px 0; }
+.prose summary { cursor: pointer; color: var(--cyan); padding: 10px 0; }
+.prose summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.replay-note p + p { margin-top: 16px; }
+@media (max-width: 700px) {
+  .metric-guide { grid-template-columns: 1fr; gap: 12px; }
+  .reading-guide { font-size: 12px; }
+  #outcome-summary { font-size: 14px; }
+  .model-switch { flex-wrap: wrap; }
+}
+
+@media (max-width: 700px) { .hero h1 { font-size: clamp(40px, 12vw, 58px); letter-spacing: -2px; } .hero h1 em { letter-spacing: -2px; } .masthead nav a { white-space: nowrap; padding: 0 5px; font-size: 11px; } }

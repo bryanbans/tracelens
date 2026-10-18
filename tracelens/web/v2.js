@@ -57,6 +57,9 @@ function toast(message) {
 function entry(id = S.model) {
   return S.report.runs.find((r) => r.id === id);
 }
+function modelName(id = S.model) {
+  return {calibrated: 'Word CNN ensemble', recalibrated: 'LSTM with a new threshold', legacy: 'Original LSTM'}[id] ?? id;
+}
 function baselineMetrics() {
   return S.split === "all"
     ? entry("legacy").metrics
@@ -91,15 +94,16 @@ function renderMetrics() {
   $("#hero-precision").textContent = percent(m.precision);
   $("#hero-fpr").textContent = percent(m.fpr, 2);
   $("#drift-warning").textContent = m.fpr > S.report.config.normal_fpr_budget
-    ? `CALIBRATION DRIFT / ${percent(m.fpr,2)} normal false positives exceeds the 1% calibration target on this audit range. The threshold remains frozen.`
-    : `FROZEN AUDIT / ${percent(m.fpr,2)} observed normal false positives on this range. The calibration target is not a future guarantee.`;
+    ? `FALSE-ALARM TARGET MISSED / ${percent(m.fpr,2)} of normal windows were flagged in this range, above the ${percent(S.report.config.normal_fpr_budget,0)} calibration target. The threshold was fixed before evaluation.`
+    : `FIXED-THRESHOLD RESULT / ${percent(m.fpr,2)} of normal windows were flagged in this range. This observed rate does not guarantee future performance.`;
+  $('#outcome-summary').textContent = `${modelName()} caught ${number(m.tp)} of ${number(m.tp + m.fn)} labeled anomalous windows, missed ${number(m.fn)}, and flagged ${number(m.fp)} of ${number(m.fp + m.tn)} normal windows in this range.`;
   const delta = (m.recall - old.recall) * 100;
   $("#hero-comparison").innerHTML =
     S.model === "legacy"
-      ? "Frozen original detector · same audit windows"
-      : `<strong>${delta >= 0 ? "+" : ""}${number(delta, 1)} percentage points</strong><br>vs. the original detector on the same range`;
+      ? "Original LSTM · same evaluation windows"
+      : `<strong>${delta >= 0 ? "+" : ""}${number(delta, 1)} percentage points</strong><br>recall vs. the original LSTM on the same range`;
   $("#signal-summary").textContent =
-    `${number(S.points.length)} disjoint windows · ${number(m.tp + m.fn)} labeled anomalies · ${entry().name}`;
+    `${number(S.points.length)} non-overlapping windows · ${number(m.tp + m.fn)} labeled anomalous · ${modelName()}`;
   $("#threshold-label").textContent =
     `THRESHOLD ${number(S.timeline.threshold, 4)} / ${entry().model_type === "semantic" ? "ACTIVATION" : "SURPRISE"}`;
   $("#source-range").textContent = S.points.length
@@ -147,7 +151,7 @@ function plot() {
     labels += `<text class="plot-label" x="${x(j)}" y="${h - 5}" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${number(points[j].line / 1e6, 2)}m</text>`;
   }
   $("#signal").innerHTML =
-    `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${number(points.length)} test windows. Cyan score line, orange frozen threshold, shaded labeled anomalies. Each bin retains its maximum score; use the incident list for exact windows."><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#72dfcf" stop-opacity=".18"/><stop offset="1" stop-color="#72dfcf" stop-opacity="0"/></linearGradient></defs>${bands}${grid}<path d="${area}" fill="url(#fill)"/><line x1="${l}" x2="${w - r}" y1="${y(S.timeline.threshold)}" y2="${y(S.timeline.threshold)}" stroke="#ffa882" stroke-dasharray="5 5" stroke-width="1.2"/><path d="${path}" fill="none" stroke="#72dfcf" stroke-width="1.25"/>${labels}</svg>`;
+    `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${number(points.length)} evaluation windows. Cyan score line, orange fixed threshold, shaded labeled anomalies. Each bin retains its maximum score; use the incident list for exact windows."><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#72dfcf" stop-opacity=".18"/><stop offset="1" stop-color="#72dfcf" stop-opacity="0"/></linearGradient></defs>${bands}${grid}<path d="${area}" fill="url(#fill)"/><line x1="${l}" x2="${w - r}" y1="${y(S.timeline.threshold)}" y2="${y(S.timeline.threshold)}" stroke="#ffa882" stroke-dasharray="5 5" stroke-width="1.2"/><path d="${path}" fill="none" stroke="#72dfcf" stroke-width="1.25"/>${labels}</svg>`;
 }
 async function modelChange(id, initial = false) {
   const g = ++S.generation;
@@ -156,8 +160,8 @@ async function modelChange(id, initial = false) {
   S.selected = null;
   ++S.detailGeneration;
   $("#audit-range").disabled = true;
-  $("#signal-summary").textContent = "Loading frozen detector scores…";
-  $("#inspector").innerHTML = '<div class="empty"><h3>Loading detector evidence…</h3></div>';
+  $("#signal-summary").textContent = "Loading saved evaluation scores…";
+  $("#inspector").innerHTML = '<div class="empty"><h3>Loading messages and model scores…</h3></div>';
   $$("[data-model]").forEach((b) => {
     b.classList.toggle("active", b.dataset.model === id);
     b.setAttribute("aria-pressed", String(b.dataset.model === id));
@@ -201,7 +205,7 @@ async function list() {
       ? data.items
           .map(
             (t) =>
-              `<button class="incident ${t.id === S.selected ? "selected" : ""}" data-id="${t.id}" aria-label="Inspect window at line ${t.start_line}"><div class="incident-top"><span>L${number(t.start_line)}</span><span class="incident-score">${number(t.score, 3)}</span></div><div class="incident-text">${esc(t.preview)}</div><div class="incident-bottom"><span><i class="dot"></i>${t.label ? "DATASET ANOMALY" : "DATASET NORMAL"}</span><span>${esc(t.split.replace("_", " ").toUpperCase())}</span></div></button>`,
+              `<button class="incident ${t.id === S.selected ? "selected" : ""}" data-id="${t.id}" aria-label="Inspect window at line ${t.start_line}"><div class="incident-top"><span>L${number(t.start_line)}</span><span class="incident-score">${number(t.score, 3)}</span></div><div class="incident-text">${esc(t.preview)}</div><div class="incident-bottom"><span><i class="dot"></i>${t.label ? "LABEL: ANOMALOUS" : "LABEL: NORMAL"}</span><span>${esc(t.split.replace("_", " ").toUpperCase())}</span></div></button>`,
           )
           .join("")
       : '<div class="empty"><h3>No matching windows.</h3><p>Change the filter or search.</p></div>';
@@ -214,7 +218,7 @@ async function list() {
       inspect(data.items.some(t => t.id === S.selected) ? S.selected : data.items[0].id);
     if (!data.items.length)
       $("#inspector").innerHTML =
-        '<div class="empty"><h3>No evidence to inspect.</h3><p>Choose another filter or audit range.</p></div>';
+        '<div class="empty"><h3>No evidence to inspect.</h3><p>Choose another filter or evaluation range.</p></div>';
   } catch (e) {
     toast(e.message);
   } finally {
@@ -238,11 +242,11 @@ async function inspect(id) {
       values = t.event_scores,
       max = Math.max(...values.filter((v) => v != null), 0.001);
     $("#inspector").innerHTML =
-      `<div class="detail-top"><div class="section-caption">WINDOW ${number(id + 1)} / ${esc(t.split ?? "TEST")}</div><h3>Lines ${number(t.start_line)}—${number(t.end_line)}</h3><div class="detail-tags"><span class="tag ${score > S.timeline.threshold ? "hot" : "cool"}">${score > S.timeline.threshold ? "MODEL FLAGGED" : "BELOW THRESHOLD"}</span><span class="tag truth">LABEL: ${t.label ? "ANOMALOUS" : "NORMAL"}</span><span class="tag">SCORE ${number(score, 4)}</span></div><p class="detail-note">${semantic ? "The window score is the maximum event activation after averaging three CNN checkpoints. Every message is scored." : "Mean next-event surprise across 19 targets. The first message supplies context and is unscored."} Dataset labels are separate evidence. Activations do not establish root cause or outage probability.</p></div>` +
+      `<div class="detail-top"><div class="section-caption">WINDOW ${number(id + 1)} / ${esc(t.split ?? "TEST")}</div><h3>Lines ${number(t.start_line)}—${number(t.end_line)}</h3><div class="detail-tags"><span class="tag ${score > S.timeline.threshold ? "hot" : "cool"}">${score > S.timeline.threshold ? "MODEL FLAGGED" : "BELOW THRESHOLD"}</span><span class="tag truth">LABEL: ${t.label ? "ANOMALOUS" : "NORMAL"}</span><span class="tag">SCORE ${number(score, 4)}</span></div><p class="detail-note">${semantic ? "Each number is a message activation: a stronger response to a learned pattern. Three CNNs average their activations for each message; the highest average is the window score. Message order across the window is not modeled." : "Each number measures how unexpected a message is given earlier event identities. The window score averages 19 next-event surprise values. The first message provides context and has no score."} Dataset labels are shown separately to check the decision. Scores do not identify a root cause or estimate outage probability. Message text is normalized, so numbers and identifiers may appear as placeholders.</p></div>` +
       t.events
         .map(
           (e, i) =>
-            `<div class="event ${values[i] > max * 0.65 ? "high" : ""}"><span class="ln">${number(e.line)}</span><div><div class="event-code">${esc(e.template)}</div><div class="event-meta">${e.label ? "DATASET ALERT LABEL" : ""}${!e.known ? (e.label ? " · " : "") + "NEW LEGACY EVENT TEMPLATE" : ""}</div></div><div class="activation">${values[i] == null ? "—" : number(values[i], 3)}${values[i] != null ? `<div class="activation-bar"><i style="width:${Math.max(0, values[i] / max) * 100}%"></i></div>` : ""}</div></div>`,
+            `<div class="event ${values[i] > max * 0.65 ? "high" : ""}"><span class="ln">${number(e.line)}</span><div><div class="event-code">${esc(e.template)}</div><div class="event-meta">${e.label ? "DATASET: ABNORMAL MESSAGE" : ""}${!e.known ? (e.label ? " · " : "") + "UNKNOWN TO LSTM EVENT VOCABULARY" : ""}</div></div><div class="activation">${values[i] == null ? "—" : number(values[i], 3)}${values[i] != null ? `<div class="activation-bar"><i style="width:${Math.max(0, values[i] / max) * 100}%"></i></div>` : ""}</div></div>`,
         )
         .join("");
     $("#inspector").scrollTop = 0;
@@ -260,42 +264,42 @@ function renderValidation() {
   const old = entry("legacy").metrics,
     now = entry("calibrated").metrics;
   $("#validation-content").innerHTML =
-    `<div class="report-intro">The detector was selected on development data. Its deployment threshold was fitted on a separate calibration range, then frozen before opening any audit predictions. <strong>A 1% normal-FPR calibration budget is a design constraint, not a guarantee about future data.</strong></div><div class="report-heading"><h2>Three detectors. Identical audit windows.</h2><span>UNADJUSTED WINDOWS / NO POINT ADJUSTMENT</span></div><div class="table-wrap"><table><thead><tr><th>Detector</th><th>Recall</th><th>Precision</th><th>Normal FPR</th><th>Average precision</th><th>False alerts / 1k</th></tr></thead><tbody>${rows.map((e) => `<tr class="${e.id === "calibrated" ? "emphasis" : ""}"><td>${esc(e.name)}</td><td>${percent(e.metrics.recall)}</td><td>${percent(e.metrics.precision)}</td><td>${percent(e.metrics.normal_false_positive_rate, 2)}</td><td>${number(e.metrics.average_precision, 4)}</td><td>${number(e.metrics.false_alerts_per_1000_windows, 2)}</td></tr>`).join("")}</tbody></table></div><div class="report-heading"><h2>How the result travels through time.</h2><span>PAIRED MOVING-BLOCK BOOTSTRAP / 500 RESAMPLES</span></div><div class="audit-grid">${Object.entries(
+    `<div class="report-intro">These models are compared on the same 112,398 later log windows. Read recall together with precision and false positives: catching more anomalies can also create more alerts to review. <strong>The word CNN exceeded its 1% normal false-positive target in every evaluation range.</strong></div><div class="report-heading"><h2>What changes when the model or threshold changes?</h2><span>SAME WINDOWS / FIXED THRESHOLDS</span></div><div class="table-wrap"><table><thead><tr><th>Detector</th><th>Recall</th><th>Precision</th><th>Normal false-positive rate</th><th>Average precision</th><th>False alerts / 1,000 windows</th></tr></thead><tbody>${rows.map((e) => `<tr class="${e.id === "calibrated" ? "emphasis" : ""}"><td>${esc(modelName(e.id))}</td><td>${percent(e.metrics.recall)}</td><td>${percent(e.metrics.precision)}</td><td>${percent(e.metrics.normal_false_positive_rate, 2)}</td><td>${number(e.metrics.average_precision, 4)}</td><td>${number(e.metrics.false_alerts_per_1000_windows, 2)}</td></tr>`).join("")}</tbody></table></div><div class="prose metric-definitions"><p><strong>Recall:</strong> anomalous windows flagged / all anomalous windows. <strong>Precision:</strong> anomalous windows flagged / all flagged windows. <strong>Normal false-positive rate:</strong> normal windows flagged / all normal windows.</p><p><strong>Average precision:</strong> summarizes precision as recall increases across score thresholds; compare it on the same data. <strong>False alerts / 1,000 windows:</strong> normal windows flagged per 1,000 total windows, including both classes. Each 20-message window is counted once; detections do not give credit to neighboring windows.</p></div><div class="report-heading"><h2>Does the CNN keep working on later logs?</h2><span>WORD CNN VS. ORIGINAL LSTM / THREE TIME RANGES</span></div><div class="audit-grid">${Object.entries(
       r.audits,
     )
       .map(([name, a]) => {
         const m = a.metrics.calibrated,
           prior = a.metrics.legacy,
           ci = a.paired_intervals;
-        return `<article class="audit-block"><span class="section-caption">${name.replace("_", " ").toUpperCase()}</span><div class="audit-number">${percent(m.recall)}</div><p>Recall · original ${percent(prior.recall)}<br>Precision ${percent(m.precision)} · normal FPR ${percent(m.normal_false_positive_rate, 2)}</p><p class="interval">Δ recall 95% interval:<br>${ci ? ci.recall_difference_95.map((v) => `${v >= 0 ? "+" : ""}${number(v * 100, 1)} pp`).join(" to ") : "unavailable"}<br>${number(a.windows)} windows · ${number(a.anomalous_windows)} positive</p></article>`;
+        return `<article class="audit-block"><span class="section-caption">${name.replace("_", " ").toUpperCase()}</span><div class="audit-number">${percent(m.recall)}</div><p>CNN recall · original LSTM ${percent(prior.recall)}<br>Precision ${percent(m.precision)} · normal false-positive rate ${percent(m.normal_false_positive_rate, 2)}</p><p class="interval">Recall gain · 95% bootstrap interval:<br>${ci ? ci.recall_difference_95.map((v) => `${v >= 0 ? "+" : ""}${number(v * 100, 1)} pp`).join(" to ") : "unavailable"}<br>${number(a.windows)} windows · ${number(a.anomalous_windows)} labeled anomalous</p></article>`;
       })
       .join(
         "",
-      )}</div><div class="confirm-callout">The comparison isolates <strong>recalibration only</strong> on the original LSTM from the full representation/model/calibration change. The CNN uses supervised window labels during training; it is a different learning protocol from the original normal-only sequence models.</div><div class="prose"><p><strong>What the numbers do not establish.</strong> This is one historical system, file-order windowing, and three subsequent time ranges. Blocks preserve local dependence but cannot remove all longer-range correlation or dataset bias. An alert is retrospective abnormal-message detection, not a demonstrated advance warning of an outage.</p><p>${esc(r.disclosure)}</p><p>Development selected <strong>${esc(r.selection.id)}</strong>. Final threshold: <strong>${number(entry("calibrated").metrics.threshold, 6)}</strong>. The original threshold and all audit predictions remain recorded in the exported report.</p></div>`;
+      )}</div><div class="confirm-callout"><strong>What each comparison means.</strong> The two LSTM rows use the same saved model with different thresholds. The word CNN also changes the input representation, training objective, supervision, and model ensemble. It learns from labeled windows; the LSTM learns from normal windows only. A similarly supervised simple text classifier is still needed to isolate the benefit of deep learning.</div><div class="prose"><p><strong>How uncertainty was estimated.</strong> Paired moving-block bootstrap resampling compares models on the same windows in 250-window blocks, with 500 resamples. The intervals describe recall differences conditional on this data and procedure. Blocks preserve nearby dependence but cannot account for all longer-range correlation or dataset bias. “pp” means percentage points. These results concern abnormal messages in one historical system; they do not establish advance warning of outages.</p><p><strong>Evaluation history.</strong> Coarse label counts across the full archive were inspected earlier. Later predictions were not used for model or threshold selection. These are temporal audits of one dataset, not independent external replication. All three ranges have now been inspected; further tuning needs new evaluation data.</p><details><summary>Technical selection and provenance details</summary><p>${esc(r.disclosure)}</p></details><p>Development selected <strong>${esc(r.selection.id)}</strong>. Final threshold: <strong>${number(entry("calibrated").metrics.threshold, 6)}</strong>. The original threshold and all audit predictions remain recorded in the exported report.</p></div>`;
   $("#finding").innerHTML =
-    `<span>THE RESEARCH FINDING</span><p><strong>Recall changed from ${percent(old.recall)} to ${percent(now.recall)} on the same combined audit windows.</strong> Precision is ${percent(now.precision)}, and normal FPR is ${percent(now.normal_false_positive_rate, 2)}. Read the individual time ranges and paired intervals before interpreting the aggregate.</p>`;
+    `<span>WHAT THIS COMPARISON SHOWS</span><p><strong>Recall changed from ${percent(old.recall)} to ${percent(now.recall)} on the same combined audit windows.</strong> Of its flagged windows, ${percent(now.precision)} were labeled anomalous. It also flagged ${percent(now.normal_false_positive_rate, 2)} of normal windows. More anomalies were found, with more false alarms to review.</p>`;
 }
 function renderProtocol() {
   const r = S.report;
   const stages = [
     [
       "01",
-      "Historical fitting",
+      "Train the models",
       "Sequence models retain their original checkpoints and vocabulary. Word CNNs learn content on lines 1–600,000, with epoch selection on 600,001–1,000,000.",
     ],
     [
       "02",
       "Development",
-      "Calibrate candidate policies on 1,000,001–1,500,000; select scoring/model/policy on 1,500,001–2,000,000 under the specified normal-FPR budget.",
+      "Fit candidate thresholds on lines 1,000,001–1,500,000. Choose the model, scoring rule, and threshold policy on 1,500,001–2,000,000, using F2 (which emphasizes recall) subject to a 1% normal false-positive constraint.",
     ],
     [
       "03",
-      "Deployment calibration",
-      "Fit the selected policy on 2,000,001–2,500,000. Freeze weights, feature mappings, scoring code, threshold, and boundaries before audit inference.",
+      "Set the final threshold",
+      "Fit the chosen threshold policy on lines 2,000,001–2,500,000. Fix weights, mappings, scoring rules, threshold, and evaluation boundaries before opening later predictions. The original checksum record has a mapping omission disclosed below.",
     ],
     [
       "04",
-      "Temporal audits",
+      "Evaluate on later logs",
       "Score 2,500,001–3,250,000 and 3,250,001–4,000,000 without adapting thresholds.",
     ],
     [
@@ -305,12 +309,12 @@ function renderProtocol() {
     ],
     [
       "06",
-      "Paired evaluation",
-      "Compare detectors on the same windows. Report recall, precision, normal FPR, AP, confusion matrices, and paired moving-block intervals.",
+      "Compare the same windows",
+      "Count detections, misses, and false alarms for each model on identical windows. Report recall, precision, normal false-positive rate, average precision, confusion matrices, and paired moving-block intervals.",
     ],
   ];
   $("#protocol-content").innerHTML =
-    `<div class="protocol-steps">${stages.map(([n, title, text]) => `<article class="protocol-step"><span>${n} /</span><h3>${title}</h3><p>${text}</p></article>`).join("")}</div><div class="report-heading"><h2>Representation matters.</h2><span>CONTENT ONLY / SOURCE LABEL STRIPPED</span></div><div class="prose"><p>The original LSTM predicts event identities. An unfamiliar template maps to one unknown event. The word CNN instead embeds content words, applies convolutional phrase filters and max pooling, and learns from window-level alert labels. Three seeded checkpoints average their per-event activations; the maximum event activation becomes the window score.</p><p>Only message content enters either model. Source alert tags, severity, timestamps, and node metadata are excluded. A new legacy template is not necessarily an unknown phrase to the word model. The first 16 word tokens per event are retained; this truncation is a documented limitation.</p><p><strong>D802 evidence:</strong> embeddings, LSTM state, causal convolutions, phrase convolutions, GELU, max pooling, backpropagation, dropout, AdamW, clipped gradients, held-out checkpoint selection, controlled comparisons, and calibration.</p><p>${esc(r.disclosure)}</p></div><div class="report-heading"><h2>The freeze is inspectable.</h2></div><div class="prose"><p>Frozen at ${esc(r.frozen_at)}. Model and source-code checksums are verified before audit execution. The audit command refuses to overwrite an existing report.</p></div><p class="hash">FREEZE SHA-256<br>${esc(r.freeze_sha256)}<br><br>ORIGINAL ARCHIVE SHA-256<br>${esc(r.dataset.sha256)}</p><div class="source-links"><a href="https://github.com/logpai/loghub/tree/master/BGL" target="_blank" rel="noopener">BGL data and attribution ↗</a><a href="/api/report" target="_blank" rel="noopener">Complete experiment JSON ↗</a><a href="/api/docs" target="_blank" rel="noopener">Local API reference ↗</a></div>`;
+    `<div class="protocol-steps">${stages.map(([n, title, text]) => `<article class="protocol-step"><span>${n} /</span><h3>${title}</h3><p>${text}</p></article>`).join("")}</div><div class="report-heading"><h2>What do the models learn from?</h2><span>CONTENT ONLY / SOURCE LABEL STRIPPED</span></div><div class="prose"><p>The original LSTM predicts event identities. An unfamiliar template maps to one unknown event. The word CNN instead embeds content words, applies convolutional phrase filters and max pooling, and learns from window-level alert labels. Three seeded checkpoints average their per-event activations; the maximum event activation becomes the window score.</p><p>Only message content enters either model. Source alert tags, severity, timestamps, and node metadata are excluded. A new event template can still contain words the CNN learned during training. The first 16 word tokens per event are retained; this truncation is a documented limitation.</p><p><strong>D802 evidence:</strong> embeddings, LSTM state, causal convolutions, phrase convolutions, GELU, max pooling, backpropagation, dropout, AdamW, clipped gradients, held-out checkpoint selection, controlled comparisons, and calibration.</p><p><strong>Evaluation history:</strong> full-archive label counts were inspected earlier, so these ranges were prediction-blind rather than pristine label-blind tests. They are now inspected and cannot be reused as untouched evaluation data for further tuning.</p><details><summary>Read the recorded development disclosure</summary><p>${esc(r.disclosure)}</p></details></div><div class="report-heading"><h2>Inspect the evaluation record.</h2></div><div class="prose"><p>The evaluation plan was recorded at ${esc(r.frozen_at)}. Checkpoints and source checksums bind the recorded procedure to specific files. The audit command refuses to overwrite an existing report. The evaluated weights, scores, and thresholds are preserved.</p><p><strong>Known provenance gap:</strong> the first CNN freeze omitted an independent checksum for the word vocabulary. The retained mapping matches the training copy and is covered by release checksums, but this cannot prove the missing pre-evaluation commitment. Original files and source snapshots are preserved; future freezes require that checksum.</p></div><p class="hash">EVALUATION PLAN SHA-256<br>${esc(r.freeze_sha256)}<br><br>ORIGINAL ARCHIVE SHA-256<br>${esc(r.dataset.sha256)}</p><div class="source-links"><a href="https://github.com/logpai/loghub/tree/master/BGL" target="_blank" rel="noopener">BGL data and attribution ↗</a><a href="/api/report" target="_blank" rel="noopener">Full evaluation JSON ↗</a><a href="/api/docs" target="_blank" rel="noopener">Local API reference ↗</a></div>`;
 }
 function navigate() {
   const page = location.hash.slice(1) || "overview";
@@ -325,7 +329,7 @@ function navigate() {
     if (a.dataset.page === S.page) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  document.title = `TraceLens / ${S.page === "overview" ? "Signal observatory" : S.page}`;
+  document.title = `TraceLens / ${({overview: "Explore logs", validation: "Compare models", replay: "Try a sample", protocol: "Method"})[S.page]}`;
   if (S.page === "overview" && S.timeline) requestAnimationFrame(plot);
 }
 function countLines() {
@@ -339,7 +343,7 @@ async function analyze() {
   const button = $("#analyze");
   button.disabled = true;
   button.textContent = "Scoring…";
-  $("#analysis-status").textContent = "Running local checkpoints…";
+  $("#analysis-status").textContent = "Running the saved models locally…";
   $("#analysis-results").innerHTML = "";
   try {
     const data = await api("/api/analyze", {
@@ -353,19 +357,19 @@ async function analyze() {
     $("#analysis-status").textContent =
       `Complete. ${number(data.analyzed_lines)} nonempty lines scored; ${data.discarded_tail_lines} trailing lines unused; ${data.ignored_blank_lines} blank lines ignored. Original line numbers retained.`;
     $("#analysis-results").innerHTML =
-      `<div class="report-heading"><h2>Decisions, replayed.</h2><span>GROUND TRUTH UNAVAILABLE FOR PASTED LOGS</span></div>` +
-      `<p class="replay-disclosure">${esc(data.note)}<br>Legacy template unknowns: ${percent(data.legacy_template_unknown_fraction)}.</p>` +
+      `<div class="report-heading"><h2>How did the model respond?</h2><span>NO VERIFIED LABELS / ACCURACY CANNOT BE MEASURED HERE</span></div>` +
+      `<p class="replay-disclosure">A flag means the sample score exceeds the saved threshold; it is not a verified anomaly. Unsupported windows receive no decision.<br>Messages absent from the LSTM event vocabulary: ${percent(data.legacy_template_unknown_fraction)}.</p>` +
       data.windows
         .map(
           (w) =>
-            `<details class="replay-result"><summary><span>Window ${w.id + 1}</span><span class="tag ${w.alert === null ? "truth" : w.alert ? "hot" : "cool"}">${w.alert === null ? "NO DECISION" : w.alert ? "FLAGGED" : "BELOW THRESHOLD"}</span><span class="micro">SCORE ${number(w.score, 4)}</span></summary><p class="replay-disclosure">${w.coverage.status === 'unscorable' ? 'Unsupported input: no decision is issued. The displayed score is diagnostic only.' : 'Domain unverified: this threshold has only been evaluated on BGL.'} ${w.coverage.known_word_fraction == null ? '' : `Known retained words: ${percent(w.coverage.known_word_fraction)}.`} ${w.coverage.truncated_events} messages truncated to 16 tokens; ${w.coverage.empty_token_events} messages without encodable words.</p><pre>${w.events.map((e) => `${String(e.line).padStart(3)}  ${esc(e.template)}  ${e.surprise == null ? "CONTEXT" : number(e.surprise, 3)}`).join("\n")}</pre></details>`,
+            `<details class="replay-result"><summary><span>Window ${w.id + 1}</span><span class="tag ${w.alert === null ? "truth" : w.alert ? "hot" : "cool"}">${w.alert === null ? "NO DECISION" : w.alert ? "FLAGGED" : "BELOW THRESHOLD"}</span><span class="micro">SCORE ${number(w.score, 4)}</span></summary><p class="replay-disclosure">${w.coverage.status === 'unscorable' ? 'No decision: this window has insufficient recognizable input for the selected model. The raw score is shown only for debugging.' : 'Input domain unverified: this threshold has only been evaluated on BGL logs.'} ${w.coverage.known_word_fraction == null ? '' : `Retained words found in the training vocabulary: ${percent(w.coverage.known_word_fraction)}.`} ${w.coverage.truncated_events} messages shortened to their first 16 word tokens; ${w.coverage.empty_token_events} messages without usable word tokens. ${entry(data.model).model_type === "semantic" ? "Each line shows its source line number, normalized message, and CNN activation. A larger activation is a stronger model response, not an outage probability." : "Each line shows its source line number, normalized message, and next-event surprise. CONTEXT marks the first message, which has no prediction score."}</p><pre>${w.events.map((e) => `${String(e.line).padStart(3)}  ${esc(e.template)}  ${e.surprise == null ? "CONTEXT" : number(e.surprise, 3)}`).join("\n")}</pre></details>`,
         )
         .join("");
   } catch (e) {
     $("#analysis-status").textContent = e.message;
   } finally {
     button.disabled = false;
-    button.textContent = "Analyze sequence →";
+    button.textContent = "Score messages →";
   }
 }
 async function init() {
@@ -373,7 +377,7 @@ async function init() {
     S.report = await api("/api/report");
     if (S.report.schema_version !== 2)
       throw Error(
-        "Launch the validated artifact directory to use this observatory.",
+        "Start the app with artifacts/validated to explore the current models and evaluation.",
       );
     renderValidation();
     renderProtocol();
@@ -440,7 +444,7 @@ async function init() {
     a.download = "tracelens-validated-audit.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast("Frozen audit report exported.");
+    toast("Evaluation report downloaded.");
   });
   $("#sample").addEventListener("click", async () => {
     try {
@@ -455,7 +459,7 @@ async function init() {
       );
       $("#log-input").value = trace.events.map((e) => e.template).join("\n");
       countLines();
-      toast("Loaded a flagged audit example.");
+      toast("Loaded a flagged evaluation window, chosen as an example. It is not a random sample.");
     } catch (e) {
       toast(e.message);
     }

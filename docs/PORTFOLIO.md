@@ -8,13 +8,13 @@ The [evaluation report](CALIBRATION_AUDIT.md) supports the measured claims. Hist
 
 ## Two-minute demonstration
 
-1. Observe: show combined recall, precision, and normal FPR together, including the calibration drift notice.
-2. Switch to Confirmation: explain the different same-range recall and false-positive values.
-3. Select Original and Recalibrated to distinguish recalibration alone from the complete representation/model change.
+1. Explore logs: show combined recall, precision, and normal FPR together, including the calibration drift notice.
+2. Switch to Confirmation (final range): explain the different same-range recall and false-positive values.
+3. Select Original LSTM and LSTM · new threshold to distinguish recalibration alone from the complete representation/model change.
 4. Inspect a flagged window, a false positive, and a missed anomaly. Explain event activations and the independent dataset labels.
-5. Validate: show the three time ranges and paired block-bootstrap intervals. Explicitly acknowledge Audit B's weak precision.
-6. Replay: load a real audit example, import a log file, and run the CNN ensemble locally.
-7. Protocol: explain temporal boundaries, pre-audit freezing, source/checkpoint hashes, and the prior coarse label-count inspection disclosure.
+5. Compare models: show the three time ranges and paired block-bootstrap intervals. Explicitly acknowledge Audit B's weak precision.
+6. Try a sample: load a real audit example, import a log file, and run the CNN ensemble locally.
+7. Method: explain temporal boundaries, pre-audit freezing, source/checkpoint hashes, and the prior coarse label-count inspection disclosure.
 
 ## Questions to prepare for
 

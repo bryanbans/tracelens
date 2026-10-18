@@ -45,7 +45,7 @@ def test_all_packed_audit_scores_reproduce_reported_metrics(release):
 def test_real_ensemble_inference_and_split_filters(release):
     report,_=release
     with TestClient(create_app(ROOT)) as client:
-        assert 'Signal observatory' in client.get('/').text
+        assert 'id="page-overview"' in client.get('/').text
         for entry in report['runs']:
             model=entry['id']
             detail=client.get(f'/api/traces/9332?model={model}').json()

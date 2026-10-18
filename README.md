@@ -8,7 +8,7 @@ The project asks a practical question: **can a model catch more abnormal log beh
 
 Built after D802 Deep Learning in a computer science master's program in AI/ML, TraceLens explores how neural networks learn from machine-generated text and how those models should be evaluated before anyone relies on their alerts.
 
-![TraceLens v2 observatory](docs/images/observatory-v2.jpg)
+![TraceLens v2 observatory](docs/images/app-language-overview.jpg)
 
 ## The problem
 
@@ -31,11 +31,11 @@ TraceLens brings detection, inspection, and evaluation into one workspace. It us
 
 Trained models and evaluation results are included, so you can explore the project without training a model first.
 
-1. **Observe:** select a flagged window and inspect its messages. One sample contains repeated corrected-parity messages followed by a machine-check interrupt; the inspector shows how differently the CNN responds to each message.
+1. **Explore logs:** select a flagged window and inspect its messages. One sample contains repeated corrected-parity messages followed by a machine-check interrupt; the inspector shows how differently the CNN responds to each message.
 2. **Investigate mistakes:** switch to **Missed anomalies** or **False positives**. Compare the model's response with the dataset labels.
-3. **Validate:** compare the three detectors and see how performance changes across later log ranges.
-4. **Replay:** load an example or import a sample and run the saved models locally. Pasted logs have no ground truth, so replay reports scores and input checks rather than accuracy.
-5. **Protocol:** inspect the training boundaries, threshold selection, and recorded evaluation procedure.
+3. **Compare models:** compare the three detectors and see how performance changes across later log ranges.
+4. **Try a sample:** load an example or import a sample and run the saved models locally. Pasted logs have no ground truth, so replay reports scores and input checks rather than accuracy.
+5. **Method:** inspect the training boundaries, threshold selection, and recorded evaluation procedure.
 
 ## What the experiment found
 
