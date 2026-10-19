@@ -20,3 +20,51 @@ Release review also found that the first semantic freeze omitted an independent 
 ## Application language review
 
 The current interface explains its purpose, window labels, metric denominators, dynamic detection/miss/false-alarm counts, chart aggregation, model comparisons, and sample-scoring limits in plain language. Navigation is Explore logs / Compare models / Try a sample / Method. Technical scoring rules, temporal boundaries, bootstrap assumptions, supervision differences, and the word-vocabulary freeze omission remain accessible. All 40 tests pass; the detector and saved evaluation artifacts are unchanged. Reviewed desktop and 390px phone layouts, switched detectors and ranges, inspected false positives and misses, and scored both a bundled example and unsupported input.
+
+
+## Reproduce the experiments
+
+```powershell
+tracelens download --output data/BGL.zip
+# Optional: refit content CNNs. This explicit flag replaces artifacts/semantic;
+# frozen release checkpoints in artifacts/validated stay separate.
+python scripts/train_semantic.py --data data/BGL.zip --overwrite
+python -m tracelens.audit develop --data data/BGL.zip --output artifacts/reproduced-audit
+# Inspect the freeze before opening audit predictions:
+python -m tracelens.audit audit --data data/BGL.zip --output artifacts/reproduced-audit
+python scripts/compact_audit.py --artifacts artifacts/reproduced-audit
+python -m pytest -q
+node --check tracelens/web/v2.js
+```
+
+The source BGL archive is approximately 57.5 MB compressed. Raw logs are not bundled. Checkpoints, the frozen procedure, archive hash, all audit scores, paired intervals, and confusion matrices are retained. The release packs templates and exact numerical scores in `traces.json.gz`; packing does not alter evaluation decisions. `scripts/compact_audit.py` reproduces the release packing for the default validated directory from its raw audit export.
+
+The audit command verifies frozen hashes before scoring and refuses an in-place repeat after a report exists. A separate output directory makes reproduction explicit. Further tuning needs new evaluation data. These ranges have already been examined.
+
+
+## Technical skills demonstrated
+
+- Learned embeddings; recurrent LSTM state; causal dilated residual convolutions; word-level phrase convolutions; GELU; token and event max pooling.
+- Minibatch backpropagation, AdamW, weight decay, dropout, clipped gradients, seeded training, and held-out epoch selection.
+- Event-frequency baselines, three-seed sequence experiments, order/dropout ablations, supervised content modeling, calibration policy selection, and paired temporal evaluation.
+- Tests for causality, label exclusion, train-only vocabulary, split separation, a finite-difference gradient check, strict/tied thresholds, budget optimization, packed artifact integrity, and live inference parity.
+
+## Where to find the code
+
+```text
+tracelens/
+  models.py          # original LSTM / causal temporal CNN
+  semantic.py        # word-level content CNN and fitting
+  calibration.py     # scoring rules, budgeted thresholds, paired bootstrap
+  audit.py           # development freeze, then separate temporal audit
+  api.py             # packed artifacts and real ensemble inference
+  web/v2.*           # current log analysis interface
+artifacts/
+  portfolio/         # original experiments, preserved
+  semantic/          # three content-CNN checkpoints and training histories
+  development-v2/    # initial sequence-only development freeze, never audited
+  validated/         # final frozen detector and audit evidence
+configs/validation-v2.json
+tests/
+docs/
+```
